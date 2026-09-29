@@ -1,0 +1,3041 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jaguá — Decodificando o Próximo Lineup</title>
+<meta name="description" content="Dashboard histórico e projeção estatística de lineup do Jaguariúna Rodeo Festival, 1989–2028.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky-1: #6E9CC4;
+    --sky-2: #9BC0DC;
+    --sky-3: #C7DEE6;
+    --sky-4: #EAF1EE;
+    --ink: #101215;
+    --ink-soft: #3A3D42;
+    --paper: #EEF3F3;
+    --card: #FFFFFF;
+    --line: #DCE3DE;
+    --muted: #6B6459;
+    --gold: #B4842E;
+    --gold-soft: #E8C784;
+    --c-blue: #3B6EA5;
+    --c-purple: #7C5CA8;
+    --c-green: #3F8F5F;
+    --c-orange: #C97A2E;
+    --night-1: #171A22;
+    --night-2: #232732;
+    --night-line: #363D4C;
+    --night-text: #C9CDD8;
+    --font-display: 'Rye', serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Hero ---------- */
+  /* O céu da logo continua pela página: o gradiente termina exatamente na cor
+     de fundo do body (--paper), sem costura visível entre hero e conteúdo. */
+
+  .hero {
+    position: relative;
+    background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 42%, var(--sky-3) 72%, var(--paper) 100%);
+    padding: 4.5rem 1.5rem 3.5rem;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 15%, rgba(255,255,255,0.35), transparent 60%),
+      radial-gradient(ellipse 50% 30% at 85% 8%, rgba(255,255,255,0.25), transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero-logo {
+    width: min(320px, 62vw);
+    margin: 0 auto 0.5rem;
+    display: block;
+    filter: drop-shadow(0 6px 18px rgba(16,18,21,0.18));
+  }
+
+  .hero-lede {
+    font-size: 1.08rem;
+    color: #1B2530;
+    max-width: 56ch;
+    margin: 0.25rem auto 2.5rem;
+    font-weight: 500;
+  }
+
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2.25rem 3rem;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.7);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .stat { display: flex; flex-direction: column; align-items: center; }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-top: 0.4rem;
+    text-align: center;
+  }
+
+  /* ---------- Layout ---------- */
+
+  main { max-width: 1040px; margin: 0 auto; padding: 0 1.5rem; }
+
+  .section { padding: 4rem 0; border-bottom: 1px solid var(--line); }
+  .section:last-of-type { border-bottom: none; }
+
+  .section-head { max-width: 66ch; margin-bottom: 2rem; }
+
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.7rem, 3vw, 2.3rem);
+    margin: 0 0 0.75rem;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+
+  .section-head p { color: var(--muted); font-size: 1rem; margin: 0; }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.75rem;
+    box-shadow: 0 1px 2px rgba(16,18,21,0.04);
+  }
+
+  /* ---------- Era cards ---------- */
+
+  .era-track { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+  .era-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--sky-1);
+    border-radius: 8px;
+    padding: 1.4rem 1.5rem;
+  }
+
+  .era-years { font-family: var(--font-mono); font-size: 0.76rem; color: var(--gold); }
+
+  .era-card h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.25rem;
+    margin: 0.4rem 0 0.55rem;
+  }
+
+  .era-card p { color: var(--muted); font-size: 0.9rem; margin: 0; }
+
+  /* ---------- Rank list ---------- */
+
+  .rank-list { list-style: none; margin: 0; padding: 0; counter-reset: rank; }
+
+  .rank-list li {
+    counter-increment: rank;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .rank-list li:last-child { border-bottom: none; }
+
+  .rank-list li::before {
+    content: counter(rank);
+    font-family: var(--font-mono);
+    color: var(--gold);
+    width: 1.6rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .rank-name { flex: 1; font-weight: 600; min-width: 0; }
+  .rank-bar-wrap { flex: 2 1 120px; background: var(--sky-4); border: 1px solid var(--line); border-radius: 4px; height: 11px; overflow: hidden; }
+  .rank-bar { display: block; height: 100%; min-width: 3px; background: linear-gradient(90deg, var(--sky-1), var(--gold)); }
+  .rank-count { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); width: 2.75rem; text-align: right; flex-shrink: 0; }
+
+  /* ---------- Predictions ---------- */
+
+  .predict-intro {
+    background: linear-gradient(135deg, var(--sky-4), var(--paper));
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin-bottom: 1.75rem;
+  }
+  .predict-intro strong { color: var(--ink); }
+
+  .year-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .year-tab {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .year-tab:hover { border-color: var(--sky-1); }
+  .year-tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .tabs-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tabs-row .year-tabs { margin-bottom: 0; }
+
+  .night-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.1rem; }
+
+  .night-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .night-card-head {
+    padding: 0.95rem 1.25rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    color: #fff;
+  }
+  .night-card-head .dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; display: inline-block; margin-right: 0.5rem; opacity: 0.85; }
+  .night-card-head h4 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.15rem; }
+  .night-card-head span.wknd { font-family: var(--font-mono); font-size: 0.72rem; opacity: 0.85; }
+
+  .slot-sex1 .night-card-head { background: var(--c-blue); }
+  .slot-sab1 .night-card-head { background: var(--c-purple); }
+  .slot-sex2 .night-card-head { background: var(--c-green); }
+  .slot-sab2 .night-card-head { background: var(--c-orange); }
+
+  .role-list { padding: 0.4rem 1.25rem 1.1rem; }
+
+  .role-row { padding: 0.75rem 0; border-bottom: 1px dashed var(--line); }
+  .role-row:last-child { border-bottom: none; }
+
+  .role-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .role-artist { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+  .role-artist-name { font-weight: 700; font-size: 1rem; }
+  .role-score { font-family: var(--font-mono); font-size: 0.74rem; color: var(--muted); white-space: nowrap; }
+
+  .role-bar-wrap { height: 4px; background: var(--sky-4); border-radius: 2px; margin-top: 0.4rem; overflow: hidden; }
+  .role-bar { height: 100%; }
+  .slot-sex1 .role-bar { background: var(--c-blue); }
+  .slot-sab1 .role-bar { background: var(--c-purple); }
+  .slot-sex2 .role-bar { background: var(--c-green); }
+  .slot-sab2 .role-bar { background: var(--c-orange); }
+
+  .genre-chip {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--sky-4);
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    margin-left: 0.5rem;
+  }
+
+  /* ---------- Charts ---------- */
+
+  /* ---------- Explorer ---------- */
+
+  .explorer-controls { display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+
+  .explorer-controls input, .explorer-controls select {
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: 6px;
+  }
+  .explorer-controls input { flex: 1; min-width: 200px; }
+  .explorer-controls input:focus, .explorer-controls select:focus { outline: 1px solid var(--sky-1); }
+
+  .table-wrap {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow-x: auto;
+    max-height: 520px;
+    overflow-y: auto;
+    background: var(--card);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+
+  thead th {
+    position: sticky; top: 0;
+    background: var(--card);
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--gold);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  tbody td { padding: 0.62rem 0.9rem; border-bottom: 1px solid var(--line); color: var(--ink-soft); vertical-align: top; }
+  tbody tr:hover { background: var(--sky-4); }
+  tbody tr.gap-row td { color: var(--muted); font-style: italic; }
+
+  /* ---------- Footer ---------- */
+  /* Fecha o arco do dia: a página abre no céu da logo e termina numa "noite de
+     show" — mesmo motivo visual do festival (rodeio acontece à noite). */
+
+  .site-footer {
+    position: relative;
+    background: linear-gradient(180deg, var(--night-1), var(--night-2));
+    color: var(--night-text);
+    padding: 4rem 1.5rem 2rem;
+    overflow: hidden;
+  }
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--c-blue), var(--c-purple), var(--c-green), var(--c-orange));
+  }
+  .site-footer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 55% 45% at 12% 0%, rgba(180,132,46,0.10), transparent 60%),
+      radial-gradient(ellipse 45% 35% at 90% 15%, rgba(110,156,196,0.10), transparent 60%);
+    pointer-events: none;
+  }
+
+  .footer-inner {
+    position: relative;
+    max-width: 1040px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.15fr 0.8fr 0.8fr 1fr;
+    gap: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--night-line);
+  }
+
+  .footer-brand .footer-wordmark {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    color: #fff;
+    margin: 0 0 0.6rem;
+    letter-spacing: 0.01em;
+  }
+  .footer-brand p { color: var(--night-text); font-size: 0.87rem; max-width: 40ch; margin: 0; }
+
+  .footer-col h5 {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gold-soft);
+    margin: 0 0 0.9rem;
+  }
+  .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
+  .footer-col a {
+    color: var(--night-text);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color .15s ease;
+  }
+  .footer-col a:hover { color: #fff; }
+
+  .footer-author { display: flex; flex-direction: column; align-items: flex-start; }
+  .footer-author-logo { max-width: 132px; height: auto; margin-bottom: 0.85rem; display: block; }
+  .footer-author-name { color: #fff; font-weight: 700; font-size: 0.9rem; margin: 0; }
+  .footer-author-role { color: var(--night-text); font-size: 0.8rem; margin: 0.15rem 0 0.9rem; }
+  .footer-social { display: flex; gap: 0.6rem; }
+  .footer-social a {
+    display: flex; align-items: center; gap: 0.4rem;
+    color: var(--night-text);
+    border: 1px solid var(--night-line);
+    border-radius: 999px;
+    padding: 0.38rem 0.8rem;
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .footer-social a:hover { color: #fff; border-color: var(--gold-soft); background: rgba(232,199,132,0.08); }
+  .footer-social svg { flex-shrink: 0; }
+
+  .footer-bottom {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: #8B93A3;
+  }
+  .footer-bottom strong { color: var(--night-text); }
+  .footer-bottom .footer-credit { display: flex; align-items: center; gap: 0.5rem; }
+  .footer-bottom .footer-credit-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-blue), var(--c-orange));
+    display: inline-block;
+  }
+
+  /* ---------- Storytelling / chapters ---------- */
+
+  .chapter-num {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--gold);
+    background: var(--sky-4);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.15rem 0.65rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .chart-caption {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin: 0.85rem 0 0;
+    padding-top: 0.85rem;
+    border-top: 1px dashed var(--line);
+  }
+
+  /* ---------- Custom SVG bar charts (no external library) ---------- */
+
+  .bar-chart-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .bar-chart-svg .bc-bar { transition: opacity .15s ease; cursor: default; }
+  .bar-chart-svg .bc-bar:hover { opacity: 0.75; }
+  .bar-chart-svg .bc-axis-label { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+  .bar-chart-svg .bc-value-label { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; fill: var(--ink-soft); }
+  .bar-chart-svg .bc-value-label.on-bar { fill: #fff; }
+  .bar-chart-svg .bc-gridline { stroke: #EFEBE2; stroke-width: 1; }
+
+  /* ---------- Insight callouts ---------- */
+
+  .insight-box {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    background: linear-gradient(135deg, var(--sky-4), var(--paper));
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 0.95rem 1.15rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .insight-box .insight-icon { font-size: 1.1rem; line-height: 1.3; flex-shrink: 0; }
+  .insight-box strong { color: var(--ink); }
+
+  /* ---------- Chapter nav ---------- */
+
+  .chapter-nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(238,243,243,0.94);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0.6rem 1.5rem;
+  }
+  .chapter-nav a {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    transition: all .15s ease;
+  }
+  .chapter-nav a:hover { background: var(--sky-4); color: var(--ink); }
+  .chapter-nav a.active { background: var(--ink); color: #fff; }
+
+  /* ---------- Scroll reveal ---------- */
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.revealed { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Hover polish ---------- */
+
+  .era-card, .analysis-card, .night-card, .panel {
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .era-card:hover, .analysis-card:hover, .panel:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(16,18,21,0.08);
+    border-color: var(--sky-1);
+  }
+  .night-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(16,18,21,0.1); }
+
+  .rank-list li { cursor: pointer; border-radius: 6px; transition: background .15s ease; }
+  .rank-list li:hover { background: var(--sky-4); }
+  .pair-list li { cursor: pointer; border-radius: 6px; transition: background .15s ease; padding-left: 0.4rem; padding-right: 0.4rem; }
+  .pair-list li:hover { background: var(--sky-4); }
+
+  /* ---------- Back to top ---------- */
+
+  .back-to-top {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--ink);
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(16,18,21,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity .2s ease, transform .2s ease, background .15s ease;
+    z-index: 30;
+  }
+  .back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .back-to-top:hover { background: var(--gold); }
+
+  /* ---------- Download buttons ---------- */
+
+  .download-btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: all .15s ease;
+  }
+  .download-btn:hover { border-color: var(--gold); background: var(--sky-4); }
+  .download-btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .download-btn.primary:hover { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+  /* ---------- Advanced analysis grid ---------- */
+
+  .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .analysis-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+  .analysis-card h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.15rem;
+    margin: 0 0 0.3rem;
+  }
+  .analysis-card .analysis-sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 1rem; }
+  .analysis-card.full { grid-column: 1 / -1; }
+
+  .method-chip {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    background: var(--sky-4);
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .cluster-legend { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; margin-top: 0.85rem; font-size: 0.8rem; }
+  .cluster-legend span { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--ink-soft); }
+  .cluster-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  .pair-list { list-style: none; margin: 0; padding: 0; }
+  .pair-list li { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid var(--line); font-size: 0.87rem; }
+  .pair-list li:last-child { border-bottom: none; }
+  .pair-list .pair-count { font-family: var(--font-mono); font-weight: 700; color: var(--gold); flex-shrink: 0; width: 1.6rem; }
+  .pair-list .pair-names { color: var(--ink-soft); }
+  .pair-list .pair-names b { color: var(--ink); }
+
+  /* ---------- Debut badge (explorer table) ---------- */
+
+  .debut-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--gold);
+    background: var(--sky-4);
+    border: 1px solid var(--gold-soft);
+    border-radius: 4px;
+    padding: 0 0.35rem;
+    margin-left: 0.35rem;
+    vertical-align: middle;
+  }
+
+  /* ---------- Methodology section ---------- */
+
+  .method-list { display: grid; gap: 1rem; }
+  .method-item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+  }
+  .method-item h4 { margin: 0 0 0.4rem; font-size: 0.95rem; color: var(--ink); }
+  .method-item p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+
+  /* ---------- Print (PDF export of predictions) ---------- */
+
+  @media print {
+    body * { visibility: hidden; }
+    #predictions, #predictions * { visibility: visible; }
+    #predictions { position: absolute; left: 0; top: 0; width: 100%; }
+    .tabs-row, .predict-intro .pdf-hint { display: none !important; }
+    .night-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .chapter-nav, .download-btn { display: none !important; }
+  }
+
+
+  /* ==========================================================================
+     Camada editorial v3 — navegação, imagens, gráficos novos, dossiê, metodologia
+     ========================================================================== */
+
+  .skip-link { position: absolute; left: -999px; top: 0; background: #fff; color: var(--ink); padding: 0.55rem 1rem; z-index: 100; border-radius: 0 0 8px 0; }
+  .skip-link:focus { left: 0; }
+  :focus-visible { outline: 2px solid var(--c-blue); outline-offset: 2px; border-radius: 4px; }
+
+  .nav-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 50; background: linear-gradient(90deg, var(--c-blue), var(--c-purple), var(--c-green), var(--c-orange)); transition: width .1s linear; }
+  .chapter-nav a.seen { color: var(--ink); background: rgba(110,156,196,0.16); }
+  .chapter-nav a.seen::after { content: " ✓"; font-size: 0.7em; color: var(--c-green); }
+  .chapter-nav a.active::after { content: ""; }
+
+  .hero-kicker { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.07em; text-transform: uppercase; color: #1B2530; opacity: 0.75; margin: 0.3rem 0 0.8rem; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; margin-top: 1.7rem; }
+  .cta-primary, .cta-secondary { text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.7rem 1.25rem; border-radius: 999px; transition: transform .15s ease, background .15s ease; }
+  .cta-primary { background: var(--ink); color: #fff; }
+  .cta-secondary { background: rgba(255,255,255,0.7); color: var(--ink); border: 1px solid rgba(255,255,255,0.95); }
+  .cta-primary:hover, .cta-secondary:hover { transform: translateY(-2px); }
+  .cta-secondary:hover { background: #fff; }
+
+  .subhead { font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; margin: 2.25rem 0 0.9rem; color: var(--ink); }
+  .punch-line {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.25rem, 2.6vw, 1.65rem);
+    line-height: 1.3;
+    color: var(--ink);
+    border-left: 4px solid var(--gold);
+    padding: 0.15rem 0 0.15rem 1rem;
+    margin: 0.9rem 0 1rem;
+  }
+  .panel-title { font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; margin: 0 0 0.35rem; }
+  .analysis-sub { color: var(--muted); font-size: 0.87rem; margin: 0 0 1rem; }
+
+  .story-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.5rem; align-items: start; }
+  .story-grid .era-track { grid-template-columns: 1fr; }
+  .story-figure { margin: 0; }
+  .story-figure img { width: 100%; height: auto; border-radius: 12px; display: block; box-shadow: 0 10px 28px rgba(16,18,21,0.14); }
+  .story-figure figcaption { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+
+  .timeline { list-style: none; margin: 0.4rem 0 0 0.45rem; padding: 0 0 0 1.5rem; border-left: 2px solid var(--sky-2); display: grid; gap: 1.15rem; }
+  .timeline li { position: relative; }
+  .timeline li::before { content: ""; position: absolute; left: calc(-1.5rem - 1px); top: 0.38rem; width: 11px; height: 11px; border-radius: 50%; background: var(--gold); border: 2px solid var(--paper); transform: translateX(-50%); }
+  .timeline li.tl-warn::before { background: #B33A3A; }
+  .timeline li.tl-muted::before { background: #8B93A3; }
+  .tl-year { font-family: var(--font-mono); font-weight: 600; color: var(--gold); font-size: 0.85rem; }
+  .tl-title { font-weight: 700; margin: 0.05rem 0 0; }
+  .tl-text { color: var(--muted); font-size: 0.9rem; margin: 0.15rem 0 0; }
+
+  .chart-slot { width: 100%; }
+  .chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .mx-svg { display: block; max-width: none; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.85rem; }
+  .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 0.4rem; vertical-align: -1px; }
+
+  .bar-chart-svg .bc-value-label.on-bar { fill: #fff; font-weight: 700; }
+  .bar-chart-svg .bc-unknown { fill: none; stroke: #B9C4C2; stroke-dasharray: 3 3; }
+  .bar-chart-svg .bc-ref { stroke: var(--gold); stroke-dasharray: 5 4; stroke-width: 1.4; }
+  .bar-chart-svg .bc-ref-label { font-family: var(--font-mono); font-size: 10px; fill: var(--gold); font-weight: 600; }
+  .bar-chart-svg .bc-name { font-family: var(--font-body); font-size: 12px; fill: var(--ink-soft); font-weight: 600; }
+  .bar-chart-svg .bc-name.link { cursor: pointer; }
+  .bar-chart-svg .bc-name.link:hover { fill: var(--ink); text-decoration: underline; }
+
+  .retention-groups { display: grid; gap: 0.7rem; margin-top: 1.4rem; }
+  .rg-row { display: grid; grid-template-columns: minmax(150px, 230px) 1fr 56px; gap: 0.85rem; align-items: center; font-size: 0.86rem; }
+  .rg-label small { display: block; color: var(--muted); font-size: 0.72rem; }
+  .rg-track { height: 12px; border-radius: 6px; background: var(--sky-4); overflow: hidden; border: 1px solid var(--line); }
+  .rg-fill { display: block; height: 100%; border-radius: 6px; }
+  .rg-val { font-family: var(--font-mono); font-weight: 600; text-align: right; }
+
+  .mx-svg .mx-name { font-family: var(--font-body); font-size: 11.5px; fill: var(--ink-soft); cursor: pointer; }
+  .mx-svg .mx-name:hover { fill: var(--ink); font-weight: 700; }
+  .mx-svg .mx-year { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted); }
+  .mx-svg .mx-cell { transition: opacity .12s ease; }
+  .mx-svg .mx-cell:hover { opacity: 0.65; }
+
+  .net-edge { stroke: #B4842E; stroke-linecap: round; transition: opacity .15s ease; }
+  .net-node circle { fill: #3B6EA5; stroke: #fff; stroke-width: 2; cursor: pointer; transition: fill .15s ease; }
+  .net-node:hover circle, .net-node.on circle { fill: var(--gold); }
+  .net-node text { font-family: var(--font-body); font-size: 11.5px; fill: var(--ink-soft); cursor: pointer; }
+
+  .story-band, .night-hero { position: relative; overflow: hidden; border-radius: 14px; }
+  .story-band img, .night-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .story-band { margin: 1rem 0 0; min-height: 230px; display: flex; align-items: center; }
+  .story-band img { object-position: center 40%; }
+  .story-band-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(16,18,26,0.82), rgba(16,18,26,0.35)); }
+  .story-band-text { position: relative; padding: 2rem; color: #fff; max-width: 60ch; }
+  .story-band-text p { font-size: 1.12rem; margin: 0.4rem 0 0; line-height: 1.5; }
+  .band-kicker { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-soft); }
+
+  .night-hero { min-height: 340px; display: flex; align-items: flex-end; margin-bottom: 1.5rem; }
+  .night-hero img { object-position: center 30%; }
+  .night-hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(16,18,26,0.15) 0%, rgba(16,18,26,0.9) 100%); }
+  .night-hero-text { position: relative; padding: 2.25rem; color: #fff; max-width: 70ch; }
+  .night-hero-text h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.7rem, 3.4vw, 2.5rem); margin: 0.6rem 0; color: #fff; }
+  .night-hero-text p { margin: 0; color: #E4E7EE; font-size: 1rem; }
+  .chapter-num.on-dark { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.28); color: var(--gold-soft); }
+
+  .evidence-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; margin-bottom: 1.75rem; }
+  .evidence-card { background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 10px; padding: 1rem 1.1rem; }
+  .ev-value { font-family: var(--font-display); font-size: 2rem; line-height: 1; color: var(--ink); }
+  .ev-label { font-size: 0.83rem; color: var(--ink-soft); margin-top: 0.55rem; }
+  .ev-caption { border-top: none; margin: -0.9rem 0 1.6rem; padding-top: 0; }
+  .ev-src { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); margin-top: 0.45rem; }
+
+  .role-btn { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px dashed var(--line); font: inherit; color: inherit; cursor: pointer; border-radius: 6px; padding: 0.75rem 0.4rem; margin: 0; transition: background .15s ease; }
+  .role-btn:hover { background: var(--sky-4); }
+  .role-hint { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; display: block; }
+  .role-row.debut-slot { cursor: default; padding: 0.7rem 0.4rem 0.2rem; border-bottom: none; }
+  .debut-slot .role-hint { font-size: 0.76rem; line-height: 1.4; }
+  .debut-slot .role-bar-wrap { background: #E9E2CF; }
+  .debut-slot .role-bar { background: var(--gold) !important; }
+
+  .score-details { margin-top: 1.4rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  .score-details summary { cursor: pointer; padding: 0.95rem 1.2rem; font-weight: 700; font-size: 0.92rem; }
+  .score-details .table-wrap { border: none; border-top: 1px solid var(--line); border-radius: 0 0 10px 10px; max-height: 480px; }
+  .num { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+
+  .artist-link { background: none; border: 0; padding: 0; font: inherit; color: var(--c-blue); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+  .artist-link:hover { color: var(--ink); }
+
+  body.no-scroll { overflow: hidden; }
+  .drawer-overlay { position: fixed; inset: 0; background: rgba(16,18,26,0.55); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 60; }
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; height: 100%; width: min(460px, 100%); background: #fff; z-index: 70; overflow-y: auto; padding: 1.6rem 1.4rem 2.5rem; box-shadow: -14px 0 34px rgba(0,0,0,0.22); transform: translateX(100%); visibility: hidden; transition: transform .25s ease, visibility .25s; }
+  .drawer.open { transform: none; visibility: visible; }
+  .drawer-close { position: sticky; top: 0; float: right; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font-size: 1.3rem; line-height: 1; cursor: pointer; z-index: 2; }
+  .drawer-close:hover { background: var(--ink); color: #fff; }
+
+  .dz-title { font-family: var(--font-display); font-weight: 400; font-size: 1.6rem; margin: 0 2.5rem 0.5rem 0; line-height: 1.15; }
+  .dz-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+  .dz-chip { font-size: 0.72rem; font-weight: 600; padding: 0.15rem 0.6rem; border-radius: 999px; background: var(--sky-4); color: var(--ink-soft); border: 1px solid var(--line); }
+  .dz-chip.gold { background: #F6EBD0; color: #7A5716; border-color: #E8D3A0; }
+  .dz-why { background: var(--sky-4); border-left: 3px solid var(--gold); border-radius: 6px; padding: 0.8rem 0.95rem; font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 1.2rem; }
+  .dz-section { margin-top: 1.3rem; }
+  .dz-section h4 { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); margin: 0 0 0.6rem; }
+  .dz-stack { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--sky-4); }
+  .dz-stack span { display: block; height: 100%; }
+  .dz-kv { display: grid; grid-template-columns: 1fr auto; gap: 0.3rem 1rem; font-size: 0.88rem; margin-top: 0.7rem; }
+  .dz-kv dt { color: var(--ink-soft); }
+  .dz-kv dd { margin: 0; font-family: var(--font-mono); font-weight: 600; text-align: right; }
+  .dz-kv .total { border-top: 1px solid var(--line); padding-top: 0.35rem; margin-top: 0.15rem; }
+  .yr-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .yr-chip { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.18rem 0.45rem; border-radius: 5px; color: #fff; background: #8FB2CC; }
+  .yr-chip.sex { background: #3B6EA5; } .yr-chip.sab { background: #7C5CA8; } .yr-chip.mix { background: linear-gradient(90deg, #3B6EA5 50%, #7C5CA8 50%); } .yr-chip.oth { background: #B4842E; }
+  .dz-comp { display: grid; gap: 0.4rem; }
+  .dz-comp-row { display: grid; grid-template-columns: 1fr 70px; gap: 0.6rem; align-items: center; font-size: 0.82rem; }
+  .dz-comp-row.me { font-weight: 700; color: var(--ink); }
+  .dz-comp-track { height: 8px; background: var(--sky-4); border-radius: 4px; overflow: hidden; margin-top: 0.15rem; }
+  .dz-comp-track i { display: block; height: 100%; background: var(--sky-1); }
+  .dz-comp-row.me .dz-comp-track i { background: var(--gold); }
+  .dz-note { font-size: 0.76rem; color: var(--muted); margin-top: 1.4rem; border-top: 1px dashed var(--line); padding-top: 0.8rem; }
+
+  .method-list { display: grid; gap: 0.7rem; margin-top: 1.1rem; }
+  details.method-detail { background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  details.method-detail summary { cursor: pointer; padding: 1rem 1.2rem; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  details.method-detail summary::-webkit-details-marker { display: none; }
+  details.method-detail summary::after { content: "+"; font-family: var(--font-mono); font-size: 1.3rem; color: var(--gold); }
+  details.method-detail[open] summary::after { content: "–"; }
+  .md-body { padding: 0 1.2rem 1.15rem; color: var(--ink-soft); font-size: 0.92rem; }
+  .md-body p { margin: 0.45rem 0; }
+  .md-body ul { margin: 0.45rem 0 0.45rem 1.1rem; padding: 0; }
+  .md-body li { margin: 0.25rem 0; }
+  .md-plain { background: var(--sky-4); border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.7rem; font-size: 0.88rem; color: var(--ink); }
+
+  .dq-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); gap: 4px; }
+  .dq-cell { aspect-ratio: 1; border-radius: 5px; font-family: var(--font-mono); font-size: 0.6rem; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px; color: #fff; cursor: default; }
+  .dq-cell.full { background: #3F8F5F; } .dq-cell.partial { background: #D9B45A; color: #4A3A10; } .dq-cell.lineup { background: #9BC0DC; color: #1B2530; }
+  .dq-cell.cancelled { background: repeating-linear-gradient(45deg, #C9CDD8, #C9CDD8 4px, #E6E8EE 4px, #E6E8EE 8px); color: #555; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+    .drawer, .drawer-overlay, .nav-progress { transition: none; }
+  }
+
+  @media print {
+    .reveal { opacity: 1 !important; transform: none !important; }
+    .night-hero { min-height: 0; margin-bottom: 0.75rem; border-radius: 0; }
+    .night-hero img, .night-hero-overlay { display: none; }
+    .night-hero-text { padding: 0; color: #101215; }
+    .night-hero-text h2, .night-hero-text p { color: #101215; }
+    .chapter-num.on-dark { background: none; color: #7A5716; border-color: #C9BFA0; }
+    .evidence-grid { grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+    .score-details, .drawer, .drawer-overlay, .back-to-top, .nav-progress { display: none !important; }
+    .night-card, .evidence-card { break-inside: avoid; }
+  }
+
+  /* ---------- Responsive ---------- */
+  /* Dois pontos de corte: tablet/telas médias (900px) e celular (600px), além
+     de ajustes finos para telas bem pequenas (380px). */
+
+  @media (max-width: 900px) {
+    .era-track { grid-template-columns: 1fr; }
+    .night-grid { grid-template-columns: 1fr; }
+    .analysis-grid { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 3.25rem 1.1rem 2.5rem; }
+    .hero-lede { font-size: 0.98rem; margin-bottom: 1.75rem; }
+    .stat-row { gap: 1.1rem 1.6rem; padding: 1.1rem; max-width: 100%; }
+    .stat-value { font-size: 1.55rem; }
+    .stat-label { font-size: 0.72rem; }
+
+    .section { padding: 2.75rem 0; }
+    .section-head h2 { font-size: 1.5rem; }
+    main { padding: 0 1.1rem; }
+
+    .chapter-nav { padding: 0.5rem 1rem; }
+    .chapter-nav a { font-size: 0.72rem; padding: 0.3rem 0.6rem; }
+
+    .panel, .analysis-card, .method-item { padding: 1.15rem; }
+
+    .explorer-controls { flex-direction: column; align-items: stretch; }
+    .explorer-controls input { min-width: 0; }
+    .explorer-controls .download-btn { justify-content: center; }
+
+    .tabs-row { flex-direction: column; align-items: stretch; }
+    .tabs-row .download-btn { justify-content: center; }
+    .year-tabs { justify-content: center; }
+
+    .night-card-head { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+    .role-artist { flex-wrap: wrap; }
+    .genre-chip { margin-left: 0; margin-top: 0.2rem; }
+
+    .footer-inner { grid-template-columns: 1fr; gap: 1.75rem; padding-bottom: 1.75rem; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; }
+    .back-to-top { right: 1rem; bottom: 1rem; width: 40px; height: 40px; }
+
+    table { font-size: 0.82rem; }
+    thead th, tbody td { padding: 0.5rem 0.6rem; }
+  }
+
+  @media (max-width: 380px) {
+    .stat-row { grid-template-columns: repeat(2, 1fr); display: grid; gap: 1rem; }
+    .stat { align-items: flex-start; text-align: left; }
+  }
+
+  @media (max-width: 900px) {
+    .story-grid { grid-template-columns: 1fr; }
+    .evidence-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .evidence-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .evidence-card { padding: 0.8rem; }
+    .ev-value { font-size: 1.55rem; }
+    .night-hero { min-height: 300px; }
+    .night-hero-text, .story-band-text { padding: 1.25rem; }
+    .story-band { min-height: 200px; }
+    .rg-row { grid-template-columns: 1fr 50px; }
+    .rg-row .rg-label { grid-column: 1 / -1; }
+    .drawer { top: auto; bottom: 0; right: 0; width: 100%; height: auto; max-height: 88vh; border-radius: 16px 16px 0 0; transform: translateY(100%); padding: 1.3rem 1.1rem 2rem; }
+    .drawer.open { transform: none; }
+    .dz-title { font-size: 1.35rem; }
+    .subhead { font-size: 1.1rem; }
+  }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Pular para o conteúdo</a>
+
+<div class="nav-progress" id="nav-progress" aria-hidden="true"></div>
+<nav class="chapter-nav" aria-label="Navegação entre capítulos">
+  <a href="#eras">1. Origem</a>
+  <a href="#format">2. Formato</a>
+  <a href="#weekday">3. Sexta × sábado</a>
+  <a href="#recurrence">4. Recorrência</a>
+  <a href="#patterns">5. Padrões</a>
+  <a href="#predictions">6. Projeção</a>
+  <a href="#explorer">7. Explorador</a>
+  <a href="#method">8. Metodologia</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <img class="hero-logo" src="assets/logo-jrf.png" alt="Jaguariúna Rodeo Festival">
+    <p class="hero-kicker">O passado deixa pistas do próximo lineup?</p>
+    <p class="hero-lede">Todo ano rola a mesma pergunta antes do anúncio: quem vai subir no palco de Jaguariúna? Fui atrás de 37 edições do festival, montei a base e caçei os padrões — e o que apareceu é mais curioso do que parece. Vem comigo: primeiro a história, depois os achados e, no fim, uma projeção com todas as contas à mostra.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="stat-value">37</span><span class="stat-label">edições realizadas</span></div>
+      <div class="stat"><span class="stat-value">3</span><span class="stat-label">sedes desde 1989</span></div>
+      <div class="stat"><span class="stat-value">4</span><span class="stat-label">noites no formato atual</span></div>
+      <div class="stat"><span class="stat-value" id="stat-artists">—</span><span class="stat-label">artistas catalogados</span></div>
+      <div class="stat"><span class="stat-value" id="stat-genres">—</span><span class="stat-label">estilos musicais</span></div>
+    </div>
+    <div class="hero-cta">
+      <a class="cta-primary" href="#eras">Começar pela história ↓</a>
+      <a class="cta-secondary" href="#predictions">Ir direto à projeção →</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="section reveal" id="eras">
+    <span class="chapter-num">Capítulo 1 — Origem</span>
+    <div class="section-head">
+      <h2>De rodeio local a megaevento</h2>
+      <p id="lead-eras">Em 1989, cerca de 18 mil pessoas foram a um rodeio de bairro num campo em Jaguariúna. Em 2005, o festival divulgou mais de 300 mil. No meio do caminho: três endereços, um festival de 10 dias, uma tragédia e uma pandemia. Antes de olhar qualquer artista, vale saber de onde a festa saiu — porque a história explica os números.</p>
+    </div>
+    <div class="story-grid">
+      <div class="era-track">
+        <article class="era-card reveal">
+          <span class="era-years">1989–1991</span>
+          <h3>Campo do Padre</h3>
+          <p>Começa pequeno: rodeio de bairro, artistas locais e cerca de 18 mil pessoas. No ano seguinte, já eram 30 mil.</p>
+        </article>
+        <article class="era-card reveal">
+          <span class="era-years">1992–1999</span>
+          <h3>Parque Santa Maria</h3>
+          <p>A festa cresce e muda de casa (cerca de 45 mil pessoas em 1992). Em 1995 vira um festival de inverno de 10 dias.</p>
+        </article>
+        <article class="era-card reveal">
+          <span class="era-years">2000–2026</span>
+          <h3>Red Park / Red Eventos</h3>
+          <p>Vira máquina de megashow — e, com o tempo, enxuga até as 4 noites de hoje.</p>
+        </article>
+      </div>
+      <figure class="story-figure">
+        <img src="assets/foto-dia.jpg" alt="Peão laçando em salto contra um céu azul com nuvens, com a marca do Jaguariúna Rodeo Festival" loading="lazy">
+        <figcaption>Imagem de divulgação do festival (material que eu já tinha).</figcaption>
+      </figure>
+    </div>
+
+    <h3 class="subhead">37 anos em 10 paradas</h3>
+    <ol class="timeline" id="timeline"></ol>
+  </section>
+
+  <section class="section reveal" id="format">
+    <span class="chapter-num">Capítulo 2 — Formato</span>
+    <div class="section-head">
+      <h2>A duração não foi constante</h2>
+      <p>Já foi festival de 10 dias. Já teve 9 noites, já teve 6.</p>
+      <p class="punch-line">Hoje são só 4 — e assim há mais de uma década.</p>
+      <p>Menos noites, menos espaço pra encaixar nomes: entender esse encolhimento é o primeiro passo pra entender quem consegue (ou não) subir no palco.</p>
+    </div>
+    <div class="panel">
+      <div id="chart-format" class="chart-slot"></div>
+      <div class="legend-row" id="legend-format"></div>
+      <p class="chart-caption">Cada barra é uma edição. As tracejadas são anos em que nenhuma fonte confirma a duração — preferi deixar em branco a chutar. Passe o mouse (ou toque) numa barra pra ver o contexto.</p>
+      <div class="insight-box" id="insight-format"></div>
+    </div>
+  </section>
+
+  <section class="section reveal" id="weekday">
+    <span class="chapter-num">Capítulo 3 — Sexta × sábado</span>
+    <div class="section-head">
+      <h2>Sexta vs. sábado</h2>
+      <p>Todo mundo tem a mesma teoria: sábado é a noite dos maiores nomes. Fui testar — e o resultado tem uma reviravolta.</p>
+      <p class="punch-line">Quem manda no dia da semana não é o dia: é o artista.</p>
+      <p>Tem gente que praticamente mora na sexta e gente que só sobe no sábado.</p>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title">Cada um no seu dia</h3>
+      <p class="analysis-sub">Os 10 artistas com mais noites de sexta ou sábado (datas confirmadas, desde 2010). Sextas pra esquerda, sábados pra direita.</p>
+      <div id="chart-weekday-split" class="chart-slot"></div>
+      <div class="legend-row"><span><i class="lg-dot" style="background:#3B6EA5"></i>Sexta-feira</span><span><i class="lg-dot" style="background:#7C5CA8"></i>Sábado</span></div>
+    </div>
+    <div class="panel" style="margin-top:1.1rem">
+      <h3 class="panel-title">Como cada noite é montada</h3>
+      <p class="analysis-sub">Quantos headliners, segundos nomes, crossovers e emergentes aparecem, em média, por noite desde 2015 (a era das 4 noites).</p>
+      <div id="chart-weekday-comp" class="chart-slot"></div>
+      <div class="legend-row" id="legend-comp"></div>
+      <div class="insight-box" id="insight-weekday"></div>
+    </div>
+  </section>
+
+  <section class="section reveal" id="recurrence">
+    <span class="chapter-num">Capítulo 4 — Recorrência</span>
+    <div class="section-head">
+      <h2>Quem mais retorna ao palco</h2>
+      <p id="lead-recurrence">Existe um clube fechado no palco do Jaguariúna. Quem são os sócios — e por que o resto entra e some?</p>
+    </div>
+
+    <div class="panel">
+      <h3 class="panel-title">O clube dos mais escalados</h3>
+      <p class="analysis-sub">Os 12 artistas com mais aparições na história do festival. Clique num nome pra ver todas as noites dele.</p>
+      <ol class="rank-list" id="rank-list"></ol>
+      <div class="insight-box" id="insight-recurrence"></div>
+    </div>
+
+    <div class="panel" style="margin-top:1.1rem">
+      <h3 class="panel-title">Quem toca em um ano volta no seguinte?</h3>
+      <p class="analysis-sub">Spoiler: mais ou menos metade. Cada barra mostra quantos artistas de uma edição estiveram também na do ano seguinte; a linha tracejada é a média.</p>
+      <div id="chart-retention" class="chart-slot"></div>
+      <div class="retention-groups" id="retention-groups"></div>
+      <p class="chart-caption" id="retention-note"></p>
+    </div>
+
+    <div class="panel" style="margin-top:1.1rem">
+      <h3 class="panel-title">Mapa da presença</h3>
+      <p class="analysis-sub">Os 22 artistas com mais edições desde 2008. Cada linha é um artista, cada coluna uma edição; a cor mostra o dia em que ele tocou.</p>
+      <div class="chart-scroll"><div id="chart-matrix" class="chart-slot"></div></div>
+      <div class="legend-row" id="legend-matrix"></div>
+      <p class="chart-caption">Repare nas faixas contínuas (quem nunca sai) e nos buracos (quem some e volta). 2020 não aparece porque não teve festival. Clique num nome pra abrir o dossiê.</p>
+    </div>
+  </section>
+
+  <section class="section reveal" id="patterns">
+    <span class="chapter-num">Capítulo 5 — Padrões</span>
+    <div class="section-head">
+      <h2>O que os dados revelam além da recorrência</h2>
+      <p>O ranking não conta tudo. Olhando quem divide palco com quem, quais estilos crescem e quando chegam os novatos, aparecem padrões que ninguém escolheu de propósito — ou será que escolheu? Quatro achados, todos calculados na mesma base.</p>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-card full">
+        <span class="method-chip">Rede de coedição</span>
+        <h3>Quem divide edição com quem</h3>
+        <p class="analysis-sub">Os 12 mais presentes desde 2008, ligados por quantas edições passaram juntos: quanto mais grossa a linha, mais palco dividido. Passe o mouse (ou toque) num nome pra destacar só as ligações dele.</p>
+        <div id="chart-network" class="chart-slot"></div>
+      </div>
+
+      <div class="analysis-card">
+        <span class="method-chip">Regras de associação</span>
+        <h3>Duplas de palco</h3>
+        <p class="analysis-sub">Quem já dividiu a mesma noite mais de uma vez em 37 anos. Tem par que se repete — e tem par que ninguém esperava.</p>
+        <ol class="pair-list" id="pair-list"></ol>
+        <div class="insight-box" id="insight-pairs"></div>
+      </div>
+
+      <div class="analysis-card">
+        <span class="method-chip">Clustering (k-means)</span>
+        <h3>Os quatro tipos de artista</h3>
+        <p class="analysis-sub">Sem ninguém dizer quem é quem, um algoritmo agrupou os artistas por frequência × recência. Cada bolinha é um artista; clique pra abrir o dossiê.</p>
+        <div id="chart-clusters" class="chart-slot"></div>
+        <div class="cluster-legend" id="cluster-legend"></div>
+        <div class="insight-box" id="insight-clusters"></div>
+      </div>
+
+      <div class="analysis-card full">
+        <span class="method-chip">Série temporal</span>
+        <h3>O sertanejo mandou — e cedeu espaço</h3>
+        <p class="analysis-sub">Os 5 estilos mais frequentes em cada era. Repare no que nasce e no que perde espaço.</p>
+        <div id="chart-genre-era" class="chart-slot"></div>
+        <div class="insight-box" id="insight-genre-era"></div>
+      </div>
+
+      <div class="analysis-card full">
+        <span class="method-chip">Estreantes por edição</span>
+        <h3>A cada ano, gente nova</h3>
+        <p class="analysis-sub">Quantos artistas subiram ali pela primeira vez, edição por edição, desde 2010.</p>
+        <div id="chart-debuts" class="chart-slot"></div>
+        <div class="insight-box" id="insight-debuts"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="story-band">
+    <img src="assets/foto-por-do-sol.jpg" alt="Estrutura do palco contra um céu de pôr do sol alaranjado" loading="lazy">
+    <div class="story-band-overlay"></div>
+    <div class="story-band-text">
+      <span class="band-kicker">Virada de chave</span>
+      <p>Até aqui, eu só olhei pra trás. Agora vem a parte arriscada: usar esse retrato pra levantar hipóteses sobre 2027, 2028 e 2029 — com as contas de cada nome à vista.</p>
+    </div>
+  </div>
+
+  <section class="section reveal" id="predictions">
+    <div class="night-hero">
+      <img src="assets/foto-noite.jpg" alt="Palco principal do festival à noite, com chamas de pirotecnia e o público de chapéus em primeiro plano" loading="lazy">
+      <div class="night-hero-overlay"></div>
+      <div class="night-hero-text">
+        <span class="chapter-num on-dark">Capítulo 6 — Projeção</span>
+        <h2>2027–2029: o perfil de cada noite</h2>
+        <p>Se o passado se repete, como seria o palco? Cruzei tudo o que vi — o formato fixo, o hábito de cada dia, quem volta e quem some — e montou uma projeção. Não é palpite nem anúncio: é a leitura estatística do histórico. E você pode clicar em qualquer nome pra ver por que ele está ali.</p>
+      </div>
+    </div>
+
+    <h3 class="subhead">Antes dos nomes: 4 números que mandam no jogo</h3>
+    <div class="evidence-grid" id="evidence-grid"></div>
+    <p class="chart-caption ev-caption" id="evidence-caption"></p>
+
+    <div class="predict-intro">
+      <strong>Como ler.</strong> Cada noite mostra, em cada papel (headliner, segundo nome, crossover e emergente), o nome com maior <strong>score histórico</strong>. O score soma <strong>3 pontos</strong> por vez que o artista tocou <em>naquela mesma noite</em>, <strong>1 ponto</strong> por aparição no festival e um <strong>bônus por ter tocado recentemente</strong>. A barra é relativa (o 1º do papel = 100): <strong>não é chance de contratação</strong>, que depende de agenda, cachê e estratégia. Em 2028 e 2029, o modelo passa pro candidato seguinte do ranking (<em>rodízio</em>) — é uma regra de desenho, não uma descoberta estatística, então leia esses anos com mais cautela. Ninguém aparece duas vezes no mesmo ano, e só aparece nome de quem já tocou em <strong>2 ou mais edições</strong>: estreante de uma aparição só vira "vaga aberta", porque a maioria não volta. <strong>Clique num nome pra ver por que ele está ali.</strong>
+    </div>
+
+    <div class="tabs-row">
+      <div class="year-tabs" id="year-tabs" role="tablist" aria-label="Ano projetado"></div>
+      <button class="download-btn" id="pdf-btn" type="button">📄 Baixar PDF do ano selecionado</button>
+    </div>
+
+    <div class="night-grid" id="predict-grid"></div>
+
+    <details class="score-details" id="score-details">
+      <summary>Ver todas as contas (tabela com os candidatos do ano)</summary>
+      <div class="table-wrap">
+        <table id="score-table">
+          <thead><tr><th>Noite</th><th>Papel</th><th>Candidato</th><th title="3 × aparições naquele slot">3× no slot</th><th title="1 × aparições totais">1× total</th><th title="bônus de recência: 2,5 se a última aparição é de 2023+; 1,2 se 2019–2022; 0,3 antes">Recência</th><th>Score</th><th>Score rel.</th><th title="posição no ranking do papel naquela noite, antes do rodízio">Posição</th></tr></thead>
+          <tbody id="score-body"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <section class="section reveal" id="explorer">
+    <span class="chapter-num">Capítulo 7 — Explorador</span>
+    <div class="section-head">
+      <h2>Explorar edição por edição</h2>
+      <p>Agora a conversa acaba e você assume o controle. Procure seu artista favorito, filtre um ano, veja quem estreou em cada edição (selo <span class="debut-badge">NOVO</span>) e baixe a base inteira. Clique num nome pra abrir o dossiê dele.</p>
+    </div>
+    <div class="explorer-controls">
+      <input type="search" id="search-input" placeholder="Buscar por artista ou ano…" aria-label="Buscar por artista ou ano">
+      <select id="year-filter" aria-label="Filtrar por ano"><option value="">Todos os anos</option></select>
+      <button class="download-btn primary" id="csv-btn" type="button">⬇ Baixar planilha (.csv)</button>
+    </div>
+    <div class="table-wrap">
+      <table id="lineup-table">
+        <thead><tr><th>Ano</th><th>Edição</th><th>Data</th><th>Dia</th><th>F.d.s.</th><th>Artistas</th><th>Sede</th></tr></thead>
+        <tbody id="lineup-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section reveal" id="method">
+    <span class="chapter-num">Capítulo 8 — Metodologia</span>
+    <div class="section-head">
+      <h2>Como isso foi construído — e onde ainda falta dado</h2>
+      <p>Os bastidores: como a base foi montada, o que é dado e o que é interpretação minha, e onde ainda tem buraco. Pra quem quer confiar — ou desconfiar — com base.</p>
+    </div>
+
+    <div class="panel">
+      <h3 class="panel-title">Onde a base é forte e onde é fraca</h3>
+      <p class="analysis-sub">Nem toda edição tem o mesmo nível de detalhe. Este mapa mostra o que existe de fato, ano a ano.</p>
+      <div class="dq-strip" id="dq-strip"></div>
+      <div class="legend-row" id="dq-legend"></div>
+    </div>
+
+    <div class="method-list" id="method-list"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <p class="footer-wordmark">Jaguá</p>
+      <p>Um painel de dados sobre o Jaguariúna Rodeo Festival (1989–2026): história, padrões e uma projeção estatística com as contas à mostra. Dados reconstruídos a partir de imprensa local e nacional, portais regionais, setlist.fm e retrospectivas oficiais — incluindo a 37ª edição (setembro de 2026), já realizada.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Capítulos</h5>
+      <ul>
+        <li><a href="#eras">1. Origem</a></li>
+        <li><a href="#format">2. Formato</a></li>
+        <li><a href="#weekday">3. Sexta × sábado</a></li>
+        <li><a href="#recurrence">4. Recorrência</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Análise &amp; dados</h5>
+      <ul>
+        <li><a href="#patterns">5. Padrões</a></li>
+        <li><a href="#predictions">6. Projeção 2027–2029</a></li>
+        <li><a href="#explorer">7. Explorador</a></li>
+        <li><a href="#method">8. Metodologia e limitações</a></li>
+      </ul>
+    </div>
+    <div class="footer-author">
+      <img class="footer-author-logo" src="assets/logo-autora.png" alt="Logo de Maria Fernanda Pereira Carvalho" loading="lazy">
+      <p class="footer-author-name">Maria Fernanda Pereira Carvalho</p>
+      <p class="footer-author-role">Marketing Intelligence &amp; Data Analyst</p>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/in/mariafernandapereiracarvalho/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn de Maria Fernanda Pereira Carvalho" title="LinkedIn">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+          <span>LinkedIn</span>
+        </a>
+        <a href="mailto:mafe.f.pereira@hotmail.com" aria-label="Enviar e-mail para Maria Fernanda Pereira Carvalho" title="E-mail">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M2.5 5.5h19v13h-19v-13zm1.7 1.4 7.8 6.1 7.8-6.1H4.2zm15.6 1.5-7.8 6.1-7.8-6.1v8.5h15.6V8.4z"/></svg>
+          <span>E-mail</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 — projeto pessoal e não oficial, feito com dados públicos. A projeção é uma hipótese estatística, não um anúncio.</span>
+    <span class="footer-credit"><span class="footer-credit-dot"></span>Desenvolvido por <strong>Maria Fernanda Pereira Carvalho</strong></span>
+  </div>
+</footer>
+
+<button id="back-to-top" class="back-to-top" type="button" aria-label="Voltar ao topo">↑</button>
+
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" aria-hidden="true">
+  <button class="drawer-close" id="drawer-close" type="button" aria-label="Fechar dossiê">×</button>
+  <div id="drawer-body"></div>
+</aside>
+
+<script>
+// Jaguariúna Rodeo Festival — dados históricos consolidados 1989–2025
+// Reconstruído a partir de imprensa local (Estrela da Mogiana), portais regionais,
+// setlist.fm e cobertura de imprensa nacional. Ver caveats no relatório de pesquisa.
+
+const FESTIVAL_DATA = {
+  meta: {
+    firstYear: 1989,
+    lastYear: 2026,
+    cancelledYears: [2020],
+    venues: [
+      { name: "Campo do Padre", years: "1989–1991" },
+      { name: "Parque Santa Maria", years: "1992–1999" },
+      { name: "Complexo Red Park / Red Eventos", years: "2000–presente" }
+    ]
+  },
+
+  // Uma linha por noite de show (ou por ano, quando a data exata não é conhecida)
+  nights: [
+    { year: 1989, edition: 1, date: null, weekday: null, weekend: null, artists: ["Nalva Aguiar", "Mato Grosso & Mathias", "Grupo Country Texas Show"], venue: "Campo do Padre", attendance: 18000, attendanceNote: "estimado" },
+    { year: 1990, edition: 2, date: null, weekday: null, weekend: null, artists: ["Sérgio Reis", "João Mineiro & Marciano", "César & Paulinho", "Feio & Mau", "Dólar de Prata", "Country Express"], venue: "Campo do Padre", attendance: 30000, attendanceNote: "estimado" },
+    { year: 1991, edition: 3, date: null, weekday: null, weekend: null, artists: ["Feio & Mau", "Leandro & Leonardo", "Trio Arizona"], venue: "Campo do Padre", note: "Início do Rodeio Completo (8 modalidades)" },
+    { year: 1992, edition: 4, date: null, weekday: null, weekend: null, artists: ["As Marcianas", "Chrystian & Ralf", "Maurício & Mauri", "João Mineiro & Marciano", "Colorado Country Band", "Apocalipse", "Siríaco", "Banda da Lagoa"], venue: "Parque Santa Maria", attendance: 45000, attendanceNote: "estimado" },
+    { year: 1993, edition: 5, date: null, weekday: null, weekend: null, artists: ["Chrystian & Ralf", "Gian & Giovani", "Raça Negra", "Sérgio Reis"], venue: "Parque Santa Maria", attendance: 60000, attendanceNote: "estimado" },
+    { year: 1994, edition: 6, date: null, weekday: null, weekend: null, artists: ["Texas Gold Minors", "Zezé Di Camargo & Luciano", "Leandro & Leonardo", "João Paulo & Daniel", "Raça Negra"], venue: "Parque Santa Maria" },
+    { year: 1995, edition: 7, date: null, weekday: null, weekend: null, artists: ["Blitz", "Roupa Nova", "Skank", "Daniela Mercury", "Sandy & Junior", "Leandro & Leonardo", "João Paulo & Daniel", "Chitãozinho & Xororó", "Chrystian & Ralf", "Raça Negra"], venue: "Parque Santa Maria", note: "Festival de inverno, 6–16 de julho (~10 dias), 11 megashows" },
+    { year: 1996, edition: 8, date: null, weekday: null, weekend: null, artists: ["Banda Mel", "Rick & Renner", "Banda Tiroteio Country", "Katinguelê", "João Paulo & Daniel", "Gerasamba", "Chitãozinho & Xororó", "Sérgio Reis"], venue: "Parque Santa Maria" },
+    { year: 1997, edition: 9, date: null, weekday: null, weekend: null, artists: ["Titãs", "Paralamas do Sucesso", "Negritude Jr.", "George Ducas", "Tammy Graham", "João Paulo & Daniel", "Netinho", "Teodoro & Sampaio", "Chitãozinho & Xororó", "Zezé Di Camargo & Luciano"], venue: "Parque Santa Maria" },
+    { year: 1998, edition: 10, date: null, weekday: null, weekend: null, artists: ["Só Pra Contrariar", "Barão Vermelho", "Titãs", "Sandy & Junior", "Zezé Di Camargo & Luciano", "Chitãozinho & Xororó", "Gian & Giovani", "Fábio Jr.", "Banda Eva", "Cheiro de Amor", "Daniel"], venue: "Parque Santa Maria", note: "Mudança de junho para maio; 1º show solo de Daniel" },
+    { year: 1999, edition: 11, date: "1999-04-29", weekday: "Quinta", weekend: null, artists: ["Terra Samba"], venue: "Parque Santa Maria", note: "Abertura da edição" },
+    { year: 1999, edition: 11, date: "1999-04-30", weekday: "Sexta", weekend: null, artists: ["Skank"], venue: "Parque Santa Maria", note: "Fonte indica show em 30/04 e/ou 1º/05" },
+    { year: 1999, edition: 11, date: "1999-05-06", weekday: "Quinta", weekend: null, artists: ["Ivete Sangalo"], venue: "Parque Santa Maria" },
+    { year: 1999, edition: 11, date: "1999-05-08", weekday: "Sábado", weekend: null, artists: ["Daniel"], venue: "Parque Santa Maria" },
+    { year: 1999, edition: 11, date: null, weekday: null, weekend: null, artists: ["Terra Samba", "Zezé Di Camargo & Luciano", "Rio Negro & Solimões", "Chitãozinho & Xororó", "Só Pra Contrariar", "Leonardo"], venue: "Parque Santa Maria", note: "Demais atrações do período (29/04–09/05/1999); data exata de cada show não confirmada. 1º show de Rio Negro & Solimões em rodeios; último ano no Parque Santa Maria." },
+    { year: 2000, edition: 12, date: "2000-04-27", weekday: "Quinta", weekend: 1, artists: ["Rick & Renner"], venue: "Red Park" },
+    { year: 2000, edition: 12, date: "2000-04-28", weekday: "Sexta", weekend: 1, artists: ["Só Pra Contrariar"], venue: "Red Park" },
+    { year: 2000, edition: 12, date: "2000-04-29", weekday: "Sábado", weekend: 1, artists: ["Leonardo"], venue: "Red Park" },
+    { year: 2000, edition: 12, date: "2000-04-30", weekday: "Domingo", weekend: 1, artists: ["Chitãozinho & Xororó"], venue: "Red Park" },
+    { year: 2000, edition: 12, date: "2000-05-01", weekday: "Segunda", weekend: 1, artists: ["Sandy & Junior"], venue: "Red Park", note: "Feriado" },
+    { year: 2000, edition: 12, date: "2000-05-04", weekday: "Quinta", weekend: 2, artists: ["Rio Negro & Solimões"], venue: "Red Park" },
+    { year: 2000, edition: 12, date: "2000-05-05", weekday: "Sexta", weekend: 2, artists: ["Zezé Di Camargo & Luciano"], venue: "Red Park" },
+    { year: 2000, edition: 12, date: "2000-05-06", weekday: "Sábado", weekend: 2, artists: ["Titãs"], venue: "Red Park" },
+    { year: 2000, edition: 12, date: "2000-05-07", weekday: "Domingo", weekend: 2, artists: ["Daniel"], venue: "Red Park" },
+    { year: 2001, edition: 13, date: "2001-05-03", weekday: "Quinta", weekend: null, artists: ["Zezé Di Camargo & Luciano"], venue: "Red Park", note: "Abertura dos shows principais" },
+    { year: 2001, edition: 13, date: "2001-05-04", weekday: "Sexta", weekend: null, artists: ["Sandy & Junior"], venue: "Red Park" },
+    { year: 2001, edition: 13, date: "2001-05-09", weekday: "Quarta", weekend: null, artists: ["Ivete Sangalo"], venue: "Red Park" },
+    { year: 2001, edition: 13, date: null, weekday: null, weekend: null, artists: ["Harmonia do Samba", "Bruno & Marrone", "Creedence Clearwater Revisited", "Rick & Renner", "Daniel", "Chitãozinho & Xororó", "Leonardo"], venue: "Red Park", attendance: 80000, attendanceNote: "Creedence teve recorde de público em toda a história do JRF à época (>80 mil) — agora confirmado por 2 fontes independentes (Estrela da Mogiana e retrospectiva oficial)", note: "Shows de 10/05 em diante ('na sequência'); ordem conhecida, data exata de cada show não confirmada. Evento foi de 3 a 13 de maio de 2001." },
+    { year: 2002, edition: 14, date: "2002-05-05", weekday: "Domingo", weekend: null, artists: ["Kansas"], venue: "Red Park", note: "Celebrando os 25 anos do álbum Point of Know Return" },
+    { year: 2002, edition: 14, date: "2002-05-11", weekday: "Sábado", weekend: null, artists: ["Chuck Berry"], venue: "Red Park" },
+    { year: 2002, edition: 14, date: null, weekday: null, weekend: null, artists: ["Leonardo", "Pedro & Thiago", "Rio Negro & Solimões", "Titãs", "Gloria Gaynor", "Bruno & Marrone", "Chiclete com Banana", "Zezé Di Camargo & Luciano", "Daniel"], venue: "Red Park", note: "Demais atrações do período (30/04–12/05/2002); data exata de cada show não confirmada. Edição integrou o projeto Kaiser Music." },
+    { year: 2003, edition: 15, date: null, weekday: null, weekend: null, artists: ["Edson & Hudson", "Fundo de Quintal", "Zeca Pagodinho", "Zezé Di Camargo & Luciano", "Rouge", "Chrystian & Ralf", "Só Pra Contrariar", "Bruno & Marrone", "Daniel", "Teodoro & Sampaio", "Gino & Geno"], venue: "Red Park" },
+    { year: 2004, edition: 16, date: null, weekday: null, weekend: 1, artists: ["Skank", "Daniel", "Chitãozinho & Xororó", "Edson & Hudson", "Teodoro & Sampaio"], venue: "Red Park" },
+    { year: 2004, edition: 16, date: null, weekday: null, weekend: 2, artists: ["Titãs", "Bruno & Marrone", "Zezé Di Camargo & Luciano", "Gino & Geno", "Milionário & José Rico"], venue: "Red Park" },
+    { year: 2005, edition: 17, date: null, weekday: null, weekend: 1, artists: ["Djavan", "JQuest", "Edson & Hudson", "Rio Negro & Solimões"], venue: "Red Park", attendance: 300000, attendanceNote: "recorde total, todo o festival" },
+    { year: 2005, edition: 17, date: null, weekday: null, weekend: 2, artists: ["Babado Novo", "Bruno & Marrone", "Zezé Di Camargo & Luciano", "Gino & Geno"], venue: "Red Park", attendance: 300000, attendanceNote: "recorde total, todo o festival" },
+    { year: 2006, edition: 18, date: "2006-05-11", weekday: "Quinta", weekend: null, artists: ["Edson & Hudson"], venue: "Red Park" },
+    { year: 2006, edition: 18, date: "2006-05-12", weekday: "Sexta", weekend: null, artists: ["Creedence Clearwater Revisited"], venue: "Red Park", note: "2ª vez que a banda-tributo se apresenta no JRF; DJs Guga e Jota Psyde também na programação" },
+    { year: 2006, edition: 18, date: "2006-05-13", weekday: "Sábado", weekend: null, artists: ["Guilherme & Santiago"], venue: "Red Park", note: "Lançamento oficial da dupla no circuito de rodeios" },
+    { year: 2006, edition: 18, date: "2006-05-14", weekday: "Domingo", weekend: null, artists: ["Gino & Geno"], venue: "Red Park" },
+    { year: 2006, edition: 18, date: "2006-05-18", weekday: "Quinta", weekend: null, artists: ["Banda Calypso"], venue: "Red Park", note: "Lançamento oficial da banda no circuito de rodeios" },
+    { year: 2006, edition: 18, date: "2006-05-19", weekday: "Sexta", weekend: null, artists: ["Bruno & Marrone"], venue: "Red Park" },
+    { year: 2006, edition: 18, date: null, weekday: null, weekend: null, artists: ["Zezé Di Camargo & Luciano", "Jammil e Uma Noite", "A Zorra", "Sem Tempo", "Matraca Louca"], venue: "Red Park", attendance: 300000, attendanceNote: "projeção pré-evento", note: "Demais atrações do período (11–21/05/2006); data exata não confirmada. 'Rodeio & Folia' foi um formato paralelo estreado nesta edição (Jammil e Uma Noite, A Zorra, Sem Tempo, Matraca Louca)." },
+    { year: 2007, edition: 19, date: "2007-05-10", weekday: "Quinta", weekend: null, artists: ["CPM22", "NX Zero", "Victor & Leo"], venue: "Red Park" },
+    { year: 2007, edition: 19, date: "2007-05-11", weekday: "Sexta", weekend: null, artists: ["César Menotti & Fabiano"], venue: "Red Park", attendance: 57200, attendanceNote: "recorde de público em um único dia" },
+    { year: 2007, edition: 19, date: "2007-05-12", weekday: "Sábado", weekend: null, artists: ["Leonardo", "Eduardo Costa"], venue: "Red Park" },
+    { year: 2007, edition: 19, date: "2007-05-13", weekday: "Domingo", weekend: null, artists: [], venue: "Red Park", note: "Encerramento do 1º bloco: finais das provas de montaria, sem atração musical principal registrada" },
+    { year: 2007, edition: 19, date: null, weekday: null, weekend: null, artists: ["O Rappa", "Zezé Di Camargo & Luciano", "Bruno & Marrone", "Ivete Sangalo", "Chiclete com Banana"], venue: "Red Park", note: "Demais atrações do período (14–20/05/2007); data exata não confirmada." },
+    { year: 2008, edition: 20, date: "2008-05-08", weekday: "Quinta", weekend: 1, artists: ["César Menotti & Fabiano"], venue: "Red Park" },
+    { year: 2008, edition: 20, date: "2008-05-09", weekday: "Sexta", weekend: 1, artists: ["Edson & Hudson"], venue: "Red Park" },
+    { year: 2008, edition: 20, date: "2008-05-10", weekday: "Sábado", weekend: 1, artists: ["Jorge & Mateus", "João Neto & Frederico"], venue: "Red Park" },
+    { year: 2008, edition: 20, date: "2008-05-11", weekday: "Domingo", weekend: 1, artists: ["Araketu", "Banda Eva"], venue: "Red Park" },
+    { year: 2008, edition: 20, date: "2008-05-15", weekday: "Quinta", weekend: 2, artists: ["Guilherme & Santiago", "Carlos & Jader"], venue: "Red Park" },
+    { year: 2008, edition: 20, date: "2008-05-16", weekday: "Sexta", weekend: 2, artists: ["Victor & Leo"], venue: "Red Park" },
+    { year: 2008, edition: 20, date: "2008-05-17", weekday: "Sábado", weekend: 2, artists: ["Zezé Di Camargo & Luciano"], venue: "Red Park" },
+    { year: 2008, edition: 20, date: "2008-05-18", weekday: "Domingo", weekend: 2, artists: ["Chiclete com Banana"], venue: "Red Park" },
+    { year: 2009, edition: 21, date: null, weekday: null, weekend: 1, artists: ["Jorge & Mateus", "Claudia Leitte", "Edson & Hudson", "Fernando & Sorocaba", "Zezé Di Camargo & Luciano", "Hugo Pena & Gabriel"], venue: "Red Park", note: "1º fim de semana ocorreu normalmente; datas exatas por artista não confirmadas" },
+    { year: 2009, edition: 21, date: "2009-05-22", weekday: "Sexta", weekend: 2, artists: ["João Bosco & Vinícius"], venue: "Red Park", note: "Show na noite de 22/05, que se estendeu à madrugada de 23/05 (sábado). Um tumulto por superlotação em um dos túneis de acesso à arena, na madrugada, matou 4 pessoas (Vivian Montagner Contrera, 19; Ariel Avelar, 19; Giovana Pereti, 27; Andreia Paola M. Carvalho, 19) e feriu ao menos 11. Fontes: ConJur, SEDEP, Terra." },
+    { year: 2009, edition: 21, date: "2009-05-23", weekday: "Sábado", weekend: 2, artists: [], venue: "Red Park", note: "CANCELADO por ordem judicial (juiz Fabrício Reali Zia) no dia seguinte ao tumulto. Show de Victor & Leo não aconteceu." },
+    { year: 2009, edition: 21, date: "2009-05-24", weekday: "Domingo", weekend: 2, artists: [], venue: "Red Park", note: "CANCELADO por ordem judicial. Show de encerramento de Roberto Carlos não aconteceu." },
+    { year: 2010, edition: 22, date: "2010-05-06", weekday: "Quinta", weekend: 1, artists: ["Luan Santana"], venue: "Red Park" },
+    { year: 2010, edition: 22, date: "2010-05-07", weekday: "Sexta", weekend: 1, artists: ["Bruno & Marrone"], venue: "Red Park" },
+    { year: 2010, edition: 22, date: "2010-05-08", weekday: "Sábado", weekend: 1, artists: ["Jorge & Mateus"], venue: "Red Park" },
+    { year: 2010, edition: 22, date: "2010-05-13", weekday: "Quinta", weekend: 2, artists: ["João Bosco & Vinícius"], venue: "Red Park" },
+    { year: 2010, edition: 22, date: "2010-05-14", weekday: "Sexta", weekend: 2, artists: ["Victor & Leo"], venue: "Red Park" },
+    { year: 2010, edition: 22, date: "2010-05-15", weekday: "Sábado", weekend: 2, artists: ["Zezé Di Camargo & Luciano"], venue: "Red Park" },
+    { year: 2011, edition: 23, date: "2011-05-05", weekday: "Quinta", weekend: 1, artists: ["Claudia Leitte"], venue: "Red Park" },
+    { year: 2011, edition: 23, date: "2011-05-06", weekday: "Sexta", weekend: 1, artists: ["Jorge & Mateus"], venue: "Red Park" },
+    { year: 2011, edition: 23, date: "2011-05-07", weekday: "Sábado", weekend: 1, artists: ["Luan Santana"], venue: "Red Park" },
+    { year: 2011, edition: 23, date: "2011-05-12", weekday: "Quinta", weekend: 2, artists: ["Exaltasamba"], venue: "Red Park" },
+    { year: 2011, edition: 23, date: "2011-05-13", weekday: "Sexta", weekend: 2, artists: ["Fernando & Sorocaba", "Gusttavo Lima"], venue: "Red Park" },
+    { year: 2011, edition: 23, date: "2011-05-14", weekday: "Sábado", weekend: 2, artists: ["Victor & Leo", "Paula Fernandes"], venue: "Red Park" },
+    { year: 2012, edition: 24, date: "2012-08-02", weekday: "Quinta", weekend: 1, artists: ["Jorge & Mateus"], venue: "Red Park" },
+    { year: 2012, edition: 24, date: "2012-08-03", weekday: "Sexta", weekend: 1, artists: ["Michel Teló", "João Carreiro & Capataz"], venue: "Red Park" },
+    { year: 2012, edition: 24, date: "2012-08-04", weekday: "Sábado", weekend: 1, artists: ["Gusttavo Lima", "Humberto & Ronaldo"], venue: "Red Park", attendance: 200000, attendanceNote: "projeção total" },
+    { year: 2012, edition: 24, date: "2012-08-09", weekday: "Quinta", weekend: 2, artists: ["O Rappa"], venue: "Red Park" },
+    { year: 2012, edition: 24, date: "2012-08-10", weekday: "Sexta", weekend: 2, artists: ["Luan Santana", "João Neto & Frederico"], venue: "Red Park" },
+    { year: 2012, edition: 24, date: "2012-08-11", weekday: "Sábado", weekend: 2, artists: ["Fernando & Sorocaba", "Thaeme & Thiago"], venue: "Red Park" },
+    { year: 2013, edition: 25, date: "2013-05-09", weekday: "Quinta", weekend: 1, artists: ["Só Pra Contrariar", "Munhoz & Mariano"], venue: "Red Park" },
+    { year: 2013, edition: 25, date: "2013-05-10", weekday: "Sexta", weekend: 1, artists: ["Fernando & Sorocaba", "Lucas Lucco", "Thaeme & Thiago"], venue: "Red Park" },
+    { year: 2013, edition: 25, date: "2013-05-11", weekday: "Sábado", weekend: 1, artists: ["Jorge & Mateus"], venue: "Red Park" },
+    { year: 2013, edition: 25, date: "2013-05-16", weekday: "Quinta", weekend: 2, artists: ["Michel Teló", "Cristiano Araújo"], venue: "Red Park" },
+    { year: 2013, edition: 25, date: "2013-05-17", weekday: "Sexta", weekend: 2, artists: ["Naldo", "Humberto & Ronaldo"], venue: "Red Park" },
+    { year: 2013, edition: 25, date: "2013-05-18", weekday: "Sábado", weekend: 2, artists: ["Gusttavo Lima"], venue: "Red Park" },
+    { year: 2014, edition: 26, date: "2014-09-11", weekday: "Quinta", weekend: 1, artists: ["Lucas Lucco", "Sol Garcia"], venue: "Red Eventos", note: "Abertura, pista liberada em comemoração ao aniversário da cidade" },
+    { year: 2014, edition: 26, date: "2014-09-12", weekday: "Sexta", weekend: 1, artists: ["Jorge & Mateus"], venue: "Red Eventos" },
+    { year: 2014, edition: 26, date: "2014-09-13", weekday: "Sábado", weekend: 1, artists: ["Leonardo", "Eduardo Costa"], venue: "Red Eventos" },
+    { year: 2014, edition: 26, date: "2014-09-18", weekday: "Quinta", weekend: 2, artists: ["Cristiano Araújo"], venue: "Red Eventos" },
+    { year: 2014, edition: 26, date: "2014-09-19", weekday: "Sexta", weekend: 2, artists: ["Gusttavo Lima", "MC Gui"], venue: "Red Eventos" },
+    { year: 2014, edition: 26, date: "2014-09-20", weekday: "Sábado", weekend: 2, artists: ["Chitãozinho & Xororó", "Thaeme & Thiago"], venue: "Red Eventos", note: "Encerramento da edição de 2014" },
+    { year: 2015, edition: 27, date: "2015-09-18", weekday: "Sexta", weekend: 1, artists: ["Henrique & Diego", "Israel Novaes", "Matheus & Kauan"], venue: "Red Park" },
+    { year: 2015, edition: 27, date: "2015-09-19", weekday: "Sábado", weekend: 1, artists: ["Chitãozinho & Xororó", "Lucas Lucco"], venue: "Red Park" },
+    { year: 2015, edition: 27, date: "2015-09-25", weekday: "Sexta", weekend: 2, artists: ["Luan Santana", "Jads & Jadson"], venue: "Red Park" },
+    { year: 2015, edition: 27, date: "2015-09-26", weekday: "Sábado", weekend: 2, artists: ["Jorge & Mateus"], venue: "Red Park" },
+    { year: 2016, edition: 28, date: "2016-09-16", weekday: "Sexta", weekend: 1, artists: ["Marília Mendonça", "Henrique & Juliano"], venue: "Red Park" },
+    { year: 2016, edition: 28, date: "2016-09-17", weekday: "Sábado", weekend: 1, artists: ["Wesley Safadão", "Israel Novaes"], venue: "Red Park" },
+    { year: 2016, edition: 28, date: "2016-09-23", weekday: "Sexta", weekend: 2, artists: ["Pedro Paulo & Alex", "Matheus & Kauan"], venue: "Red Park" },
+    { year: 2016, edition: 28, date: "2016-09-24", weekday: "Sábado", weekend: 2, artists: ["Jorge & Mateus", "Alok", "Jefferson Moraes"], venue: "Red Park", attendance: 100000, attendanceNote: "mais de 100 mil, total do festival" },
+    { year: 2017, edition: 29, date: "2017-09-15", weekday: "Sexta", weekend: 1, artists: ["Henrique & Juliano", "Zé Neto & Cristiano", "DJ Samhara"], venue: "Red Park" },
+    { year: 2017, edition: 29, date: "2017-09-16", weekday: "Sábado", weekend: 1, artists: ["Jorge & Mateus", "Guilherme & Santiago", "Gustavo Mioto"], venue: "Red Park" },
+    { year: 2017, edition: 29, date: "2017-09-22", weekday: "Sexta", weekend: 2, artists: ["Marília Mendonça", "Maiara & Maraisa", "Gusttavo Lima"], venue: "Red Park" },
+    { year: 2017, edition: 29, date: "2017-09-23", weekday: "Sábado", weekend: 2, artists: ["Matheus & Kauan", "Simone & Simaria", "Dennis DJ"], venue: "Red Park" },
+    { year: 2018, edition: 30, date: "2018-09-14", weekday: "Sexta", weekend: 1, artists: ["Henrique & Diego", "Gusttavo Lima", "Zé Neto & Cristiano", "DJ Samhara"], venue: "Red Park" },
+    { year: 2018, edition: 30, date: "2018-09-15", weekday: "Sábado", weekend: 1, artists: ["Nelson Freitas & Big Time Orchestra", "Wesley Safadão", "Matheus & Kauan", "Dennis DJ"], venue: "Red Park" },
+    { year: 2018, edition: 30, date: "2018-09-21", weekday: "Sexta", weekend: 2, artists: ["Chitãozinho & Xororó", "Henrique & Juliano", "Make U Sweat", "Gustavo Mioto"], venue: "Red Park" },
+    { year: 2018, edition: 30, date: "2018-09-22", weekday: "Sábado", weekend: 2, artists: ["Jorge & Mateus", "Luan Santana", "Alok"], venue: "Red Park" },
+    { year: 2019, edition: 31, date: "2019-09-13", weekday: "Sexta", weekend: 1, artists: ["Chitãozinho & Xororó", "Bruno & Marrone", "Henrique & Juliano"], venue: "Red Eventos" },
+    { year: 2019, edition: 31, date: "2019-09-14", weekday: "Sábado", weekend: 1, artists: ["Zé Neto & Cristiano", "Dennis DJ", "Gustavo Mioto"], venue: "Red Eventos" },
+    { year: 2019, edition: 31, date: "2019-09-20", weekday: "Sexta", weekend: 2, artists: ["Marília Mendonça", "DJ Samhara", "Gusttavo Lima"], venue: "Red Eventos" },
+    { year: 2019, edition: 31, date: "2019-09-21", weekday: "Sábado", weekend: 2, artists: ["Jorge & Mateus", "Alok", "MC Kevinho"], venue: "Red Eventos" },
+    { year: 2021, edition: 32, date: "2021-11-26", weekday: "Sexta", weekend: 1, artists: ["Gusttavo Lima", "Felipe Araújo", "Zé Vaqueiro"], venue: "Red Park" },
+    { year: 2021, edition: 32, date: "2021-11-27", weekday: "Sábado", weekend: 1, artists: ["Barões da Pisadinha", "Zé Neto & Cristiano", "Dennis DJ"], venue: "Red Park" },
+    { year: 2021, edition: 32, date: "2021-12-03", weekday: "Sexta", weekend: 2, artists: ["Jorge & Mateus", "Bruno & Marrone", "João Gomes", "JetLag"], venue: "Red Park" },
+    { year: 2021, edition: 32, date: "2021-12-04", weekday: "Sábado", weekend: 2, artists: ["Henrique & Juliano", "Gustavo Mioto", "Pedro Sampaio"], venue: "Red Park" },
+    { year: 2022, edition: 33, date: "2022-09-16", weekday: "Sexta", weekend: 1, artists: ["Ana Castela", "Hugo & Guilherme", "Wesley Safadão", "Pedro Sampaio", "Sevenn"], venue: "Red Park", attendance: 140000, attendanceNote: "meta, total do festival" },
+    { year: 2022, edition: 33, date: "2022-09-17", weekday: "Sábado", weekend: 1, artists: ["Lauana Prado", "Jorge & Mateus", "Zé Neto & Cristiano", "Dennis DJ"], venue: "Red Park" },
+    { year: 2022, edition: 33, date: "2022-09-23", weekday: "Sexta", weekend: 2, artists: ["Henrique & Juliano", "Menos é Mais", "Alok", "Ícaro & Gilmar"], venue: "Red Park" },
+    { year: 2022, edition: 33, date: "2022-09-24", weekday: "Sábado", weekend: 2, artists: ["Gusttavo Lima", "Gustavo Mioto", "Vintage Culture"], venue: "Red Park" },
+    { year: 2023, edition: 34, date: "2023-09-22", weekday: "Sexta", weekend: 1, artists: ["Henrique & Juliano", "Thiaguinho", "DJ Locos", "Clayton & Romário"], venue: "Red Eventos" },
+    { year: 2023, edition: 34, date: "2023-09-23", weekday: "Sábado", weekend: 1, artists: ["Lynyrd Skynyrd", "Fernando & Sorocaba", "Zé Neto & Cristiano", "Ícaro & Gilmar", "Pedro Sampaio"], venue: "Red Eventos" },
+    { year: 2023, edition: 34, date: "2023-09-29", weekday: "Sexta", weekend: 2, artists: ["Bruno & Marrone", "Ana Castela", "Maiara & Maraisa", "KVSH", "Malifoo"], venue: "Red Eventos" },
+    { year: 2023, edition: 34, date: "2023-09-30", weekday: "Sábado", weekend: 2, artists: ["Jorge & Mateus", "Luan Santana", "Gustavo Mioto", "Dennis DJ"], venue: "Red Eventos" },
+    { year: 2024, edition: 35, date: "2024-09-20", weekday: "Sexta", weekend: 1, artists: ["Chitãozinho & Xororó", "Ana Castela", "Luan Santana"], venue: "Red Eventos", attendance: 150000, attendanceNote: "esperado, total do festival" },
+    { year: 2024, edition: 35, date: "2024-09-21", weekday: "Sábado", weekend: 1, artists: ["Lauana Prado", "Zezé Di Camargo & Luciano", "Gusttavo Lima"], venue: "Red Eventos" },
+    { year: 2024, edition: 35, date: "2024-09-27", weekday: "Sexta", weekend: 2, artists: ["Jorge & Mateus", "Fernando & Sorocaba", "Simone Mendes", "Mari Fernandez"], venue: "Red Eventos" },
+    { year: 2024, edition: 35, date: "2024-09-28", weekday: "Sábado", weekend: 2, artists: ["Bruno & Marrone", "Gustavo Mioto", "Dennis DJ", "Nattan"], venue: "Red Eventos" },
+    { year: 2025, edition: 36, date: "2025-09-19", weekday: "Sexta", weekend: 1, artists: ["Chitãozinho & Xororó", "Murilo Huff", "Lauana Prado", "Felipe & Rodrigo"], venue: "Red Eventos", attendance: 150000, attendanceNote: "estimado, total do festival" },
+    { year: 2025, edition: 36, date: "2025-09-20", weekday: "Sábado", weekend: 1, artists: ["Jorge & Mateus", "Luan Santana", "Wesley Safadão"], venue: "Red Eventos" },
+    { year: 2025, edition: 36, date: "2025-09-26", weekday: "Sexta", weekend: 2, artists: ["Bruno & Marrone", "Ana Castela", "Natanzinho Lima", "Diego & Arnaldo"], venue: "Red Eventos" },
+    { year: 2025, edition: 36, date: "2025-09-27", weekday: "Sábado", weekend: 2, artists: ["Kacey Musgraves", "Zé Neto & Cristiano", "Nattan", "Dennis DJ"], venue: "Red Eventos" },
+    { year: 2026, edition: 37, date: "2026-09-18", weekday: "Sexta", weekend: 1, artists: ["Zezé Di Camargo & Luciano", "Wesley Safadão", "Natanzinho Lima", "Hugo & Guilherme"], venue: "Red Eventos" },
+    { year: 2026, edition: 37, date: "2026-09-19", weekday: "Sábado", weekend: 1, artists: ["Daniel", "Gusttavo Lima", "Panda", "Country Beat"], venue: "Red Eventos", note: "Entrada gratuita para moradores de Jaguariúna mediante doação de leite" },
+    { year: 2026, edition: 37, date: "2026-09-25", weekday: "Sexta", weekend: 2, artists: ["Bruno & Marrone", "Zé Neto & Cristiano", "Ana Castela", "Mariana Fagundes"], venue: "Red Eventos" },
+    { year: 2026, edition: 37, date: "2026-09-26", weekday: "Sábado", weekend: 2, artists: ["Luan Santana", "Matheus & Kauan", "Gustavo Mioto", "Syon Trio"], venue: "Red Eventos", note: "Encerramento da 37ª edição; 16 atrações musicais ao todo nas 4 noites" }
+  ],
+
+  // Duração conhecida por edição (dias ou noites de show), para o gráfico de evolução do formato
+  // Duração por edição — SOMENTE valores com fonte. 'basis' diz o que o número mede:
+  // "noites" = noites de show com data confirmada; "dias" = período do evento (sem contagem de noites de show).
+  // 1989 (dado parcial), 1998 (sem fonte de duração) e 2009 (edição interrompida) foram retirados: não havia base.
+  formatEvolution: [
+    { year: 1995, nights: 10, basis: "dias", note: "Festival de inverno de 10 dias (TV Bandeirantes), 11 megashows" },
+    { year: 2000, nights: 9, basis: "noites", note: "27/04 a 07/05 — 9 noites de show com data confirmada" },
+    { year: 2006, nights: 11, basis: "dias", note: "Evento de 11 a 21/05 (período; noites de show não contadas)" },
+    { year: 2008, nights: 8, basis: "noites", note: "2 fins de semana de 4 noites (qui–dom), 20ª edição" },
+    { year: 2010, nights: 6, basis: "noites", note: "2 fins de semana, 3 noites cada" },
+    { year: 2011, nights: 6, basis: "noites", note: "2 fins de semana, 3 noites cada" },
+    { year: 2012, nights: 6, basis: "noites", note: "2 fins de semana, 3 noites cada" },
+    { year: 2013, nights: 6, basis: "noites", note: "2 fins de semana, 3 noites cada" },
+    { year: 2014, nights: 6, basis: "noites", note: "2 fins de semana, 3 noites cada (última edição neste formato)" },
+    { year: 2015, nights: 4, basis: "noites", note: "2 sextas + 2 sábados (formato atual)" },
+    { year: 2016, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2017, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2018, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2019, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2021, nights: 4, basis: "noites", note: "2 sextas + 2 sábados (remarcado por COVID)" },
+    { year: 2022, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2023, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2024, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2025, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" },
+    { year: 2026, nights: 4, basis: "noites", note: "2 sextas + 2 sábados" }
+  ],
+
+  caveats: [
+    "Clima diário (temperatura/chuva) por data: não disponível — exige acesso direto a INMET/BDMEP ou NOAA/GHCN-Daily.",
+    "2009: a 21ª edição foi interrompida por uma tragédia real (tumulto com 4 mortes, 23/05/2009); os 2 últimos dias foram cancelados por ordem judicial.",
+    "Datas exatas de parte de 1989–1999 e 2001–2007 permanecem sem confirmação por artista específico."
+  ]
+};
+
+// Classificação por artista para o motor de projeção — headliner / segundo nome / crossover / emergente.
+// Baseado no papel predominante de cada artista no mercado sertanejo/rodeios em 2025.
+// Artistas fora deste mapa recebem o papel "second" por padrão.
+const ARTIST_PROFILE = {
+  "Jorge & Mateus": { tag: "headliner", genre: "Sertanejo universitário" },
+  "Gusttavo Lima": { tag: "headliner", genre: "Sertanejo pop" },
+  "Bruno & Marrone": { tag: "headliner", genre: "Sertanejo romântico" },
+  "Luan Santana": { tag: "headliner", genre: "Sertanejo pop" },
+  "Chitãozinho & Xororó": { tag: "headliner", genre: "Sertanejo raiz" },
+  "Zezé Di Camargo & Luciano": { tag: "headliner", genre: "Sertanejo raiz" },
+  "Henrique & Juliano": { tag: "headliner", genre: "Sertanejo sofrência" },
+  "Wesley Safadão": { tag: "headliner", genre: "Forró/pop" },
+  "Ana Castela": { tag: "headliner", genre: "Sertanejo arrocha" },
+  "Kacey Musgraves": { tag: "headliner", genre: "Country internacional" },
+
+  "Zé Neto & Cristiano": { tag: "second", genre: "Sertanejo sofrência" },
+  "Gustavo Mioto": { tag: "second", genre: "Sertanejo pop" },
+  "Lauana Prado": { tag: "second", genre: "Sertanejo feminino" },
+  "Matheus & Kauan": { tag: "second", genre: "Sertanejo universitário" },
+  "Maiara & Maraisa": { tag: "second", genre: "Sertanejo feminino" },
+  "Fernando & Sorocaba": { tag: "second", genre: "Sertanejo universitário" },
+  "Simone Mendes": { tag: "second", genre: "Sertanejo feminino" },
+  "Hugo & Guilherme": { tag: "second", genre: "Sertanejo universitário" },
+  "Guilherme & Santiago": { tag: "second", genre: "Sertanejo universitário" },
+  "Israel Novaes": { tag: "second", genre: "Sertanejo universitário" },
+  "Henrique & Diego": { tag: "second", genre: "Sertanejo universitário" },
+  "Thaeme & Thiago": { tag: "second", genre: "Sertanejo pop" },
+  "Victor & Leo": { tag: "second", genre: "Sertanejo romântico" },
+  "Edson & Hudson": { tag: "second", genre: "Sertanejo raiz" },
+  "Gino & Geno": { tag: "second", genre: "Sertanejo raiz" },
+
+  "Alok": { tag: "crossover", genre: "Eletrônico" },
+  "Vintage Culture": { tag: "crossover", genre: "Eletrônico" },
+  "Pedro Sampaio": { tag: "crossover", genre: "Funk/eletrônico" },
+  "Dennis": { tag: "crossover", genre: "Eletrônico" },
+  "Dennis DJ": { tag: "crossover", genre: "Eletrônico" },
+  "Sevenn": { tag: "crossover", genre: "Eletrônico" },
+  "KVSH": { tag: "crossover", genre: "Eletrônico" },
+  "Malifoo": { tag: "crossover", genre: "Eletrônico" },
+  "Menos é Mais": { tag: "crossover", genre: "Eletrônico" },
+  "Ícaro & Gilmar": { tag: "crossover", genre: "Sertanejo/funk" },
+  "MC Kevinho": { tag: "crossover", genre: "Funk" },
+  "DJ Samhara": { tag: "crossover", genre: "Eletrônico" },
+  "Thiaguinho": { tag: "crossover", genre: "Pagode" },
+  "Lynyrd Skynyrd": { tag: "crossover", genre: "Rock internacional" },
+  "Pedro & Thiago": { tag: "second", genre: "Sertanejo raiz" },
+
+  "Nattan": { tag: "emerging", genre: "Piseiro" },
+  "Natanzinho Lima": { tag: "emerging", genre: "Piseiro" },
+  "Diego & Arnaldo": { tag: "emerging", genre: "Sertanejo universitário" },
+  "João Gomes": { tag: "emerging", genre: "Piseiro" },
+  "Mari Fernandez": { tag: "emerging", genre: "Piseiro" },
+  "Murilo Huff": { tag: "emerging", genre: "Sertanejo sofrência" },
+  "Felipe & Rodrigo": { tag: "emerging", genre: "Sertanejo universitário" },
+  "Clayton & Romário": { tag: "emerging", genre: "Sertanejo universitário" },
+  "JetLag": { tag: "emerging", genre: "Eletrônico" },
+  "Zé Vaqueiro": { tag: "emerging", genre: "Piseiro" },
+  "Felipe Araújo": { tag: "emerging", genre: "Sertanejo pop" },
+  "Barões da Pisadinha": { tag: "emerging", genre: "Piseiro" },
+  "Jads & Jadson": { tag: "emerging", genre: "Sertanejo universitário" },
+  "Make U Sweat": { tag: "crossover", genre: "Eletrônico" },
+  "Panda": { tag: "emerging", genre: "Sertanejo pop" },
+  "Country Beat": { tag: "emerging", genre: "Agronejo" },
+  "Mariana Fagundes": { tag: "emerging", genre: "Sertanejo feminino" },
+  "Syon Trio": { tag: "crossover", genre: "Eletrônico/percussão" },
+  "Jefferson Moraes": { tag: "second", genre: "Sertanejo universitário" }
+};
+
+// Artistas excluídos de projeções futuras (falecimento, inatividade confirmada).
+const EXCLUDED_FUTURE = new Set(["Marília Mendonça"]);
+const ARTIST_GENRE = {
+  "A Zorra": "Pagode",
+  "Alok": "Eletrônico",
+  "Ana Castela": "Sertanejo",
+  "Apocalipse": "Country/Agronejo",
+  "Araketu": "Axé",
+  "As Marcianas": "Sertanejo",
+  "Babado Novo": "Axé",
+  "Banda Calypso": "Brega/Calypso",
+  "Banda Eva": "Axé",
+  "Banda Mel": "Axé",
+  "Banda Tiroteio Country": "Country/Agronejo",
+  "Banda da Lagoa": "Sertanejo",
+  "Barão Vermelho": "Rock",
+  "Barões da Pisadinha": "Piseiro/Forró",
+  "Blitz": "Rock",
+  "Bruno & Marrone": "Sertanejo",
+  "CPM22": "Rock",
+  "Carlos & Jader": "Sertanejo",
+  "Cheiro de Amor": "Axé",
+  "Chiclete com Banana": "Axé",
+  "Chitãozinho & Xororó": "Sertanejo",
+  "Chrystian & Ralf": "Sertanejo",
+  "Chuck Berry": "Rock Internacional",
+  "Claudia Leitte": "Axé",
+  "Clayton & Romário": "Sertanejo",
+  "Colorado Country Band": "Country/Agronejo",
+  "Country Beat": "Country/Agronejo",
+  "Country Express": "Country/Agronejo",
+  "Creedence Clearwater Revisited": "Rock Internacional",
+  "Cristiano Araújo": "Sertanejo",
+  "César & Paulinho": "Sertanejo",
+  "César Menotti & Fabiano": "Sertanejo",
+  "DJ Locos": "Eletrônico",
+  "DJ Samhara": "Eletrônico",
+  "Daniel": "Sertanejo",
+  "Daniela Mercury": "Axé",
+  "Dennis DJ": "Eletrônico",
+  "Diego & Arnaldo": "Sertanejo",
+  "Djavan": "Pop/MPB",
+  "Dólar de Prata": "Country/Agronejo",
+  "Edson & Hudson": "Sertanejo",
+  "Eduardo Costa": "Sertanejo",
+  "Exaltasamba": "Pagode",
+  "Feio & Mau": "Country/Agronejo",
+  "Felipe & Rodrigo": "Sertanejo",
+  "Felipe Araújo": "Sertanejo",
+  "Fernando & Sorocaba": "Sertanejo",
+  "Fundo de Quintal": "Pagode",
+  "Fábio Jr.": "Pop/MPB",
+  "George Ducas": "Country/Agronejo",
+  "Gerasamba": "Pagode",
+  "Gian & Giovani": "Sertanejo",
+  "Gino & Geno": "Sertanejo",
+  "Gloria Gaynor": "Pop/MPB",
+  "Grupo Country Texas Show": "Country/Agronejo",
+  "Guilherme & Santiago": "Sertanejo",
+  "Gustavo Mioto": "Sertanejo",
+  "Gusttavo Lima": "Sertanejo",
+  "Harmonia do Samba": "Pagode",
+  "Henrique & Diego": "Sertanejo",
+  "Henrique & Juliano": "Sertanejo",
+  "Hugo & Guilherme": "Sertanejo",
+  "Hugo Pena & Gabriel": "Sertanejo",
+  "Humberto & Ronaldo": "Sertanejo",
+  "Israel Novaes": "Sertanejo",
+  "Ivete Sangalo": "Axé",
+  "JQuest": "Pop/MPB",
+  "Jads & Jadson": "Sertanejo",
+  "Jammil e Uma Noite": "Axé",
+  "Jefferson Moraes": "Sertanejo",
+  "JetLag": "Eletrônico",
+  "Jorge & Mateus": "Sertanejo",
+  "João Bosco & Vinícius": "Sertanejo",
+  "João Carreiro & Capataz": "Sertanejo",
+  "João Gomes": "Piseiro/Forró",
+  "João Mineiro & Marciano": "Sertanejo",
+  "João Neto & Frederico": "Sertanejo",
+  "João Paulo & Daniel": "Sertanejo",
+  "KVSH": "Eletrônico",
+  "Kacey Musgraves": "Country/Agronejo",
+  "Kansas": "Rock Internacional",
+  "Katinguelê": "Pagode",
+  "Lauana Prado": "Sertanejo",
+  "Leandro & Leonardo": "Sertanejo",
+  "Leonardo": "Sertanejo",
+  "Luan Santana": "Sertanejo",
+  "Lucas Lucco": "Sertanejo",
+  "Lynyrd Skynyrd": "Rock Internacional",
+  "MC Gui": "Funk",
+  "MC Kevinho": "Funk",
+  "Maiara & Maraisa": "Sertanejo",
+  "Make U Sweat": "Eletrônico",
+  "Malifoo": "Eletrônico",
+  "Mari Fernandez": "Piseiro/Forró",
+  "Mariana Fagundes": "Sertanejo",
+  "Marília Mendonça": "Sertanejo",
+  "Matheus & Kauan": "Sertanejo",
+  "Mato Grosso & Mathias": "Sertanejo",
+  "Matraca Louca": "Pagode",
+  "Maurício & Mauri": "Sertanejo",
+  "Menos é Mais": "Pagode",
+  "Michel Teló": "Sertanejo",
+  "Milionário & José Rico": "Sertanejo",
+  "Munhoz & Mariano": "Sertanejo",
+  "Murilo Huff": "Sertanejo",
+  "NX Zero": "Rock",
+  "Naldo": "Funk",
+  "Nalva Aguiar": "Sertanejo",
+  "Natanzinho Lima": "Piseiro/Forró",
+  "Nattan": "Piseiro/Forró",
+  "Negritude Jr.": "Pagode",
+  "Nelson Freitas & Big Time Orchestra": "Pop/MPB",
+  "Netinho": "Axé",
+  "O Rappa": "Rock",
+  "Panda": "Piseiro/Forró",
+  "Paralamas do Sucesso": "Rock",
+  "Paula Fernandes": "Sertanejo",
+  "Pedro & Thiago": "Sertanejo",
+  "Pedro Paulo & Alex": "Sertanejo",
+  "Pedro Sampaio": "Funk",
+  "Raça Negra": "Pagode",
+  "Rick & Renner": "Sertanejo",
+  "Rio Negro & Solimões": "Sertanejo",
+  "Rouge": "Pop/MPB",
+  "Roupa Nova": "Pop/MPB",
+  "Sandy & Junior": "Pop/MPB",
+  "Sem Tempo": "Pagode",
+  "Sevenn": "Eletrônico",
+  "Simone & Simaria": "Sertanejo",
+  "Simone Mendes": "Sertanejo",
+  "Siríaco": "Sertanejo",
+  "Skank": "Rock",
+  "Sol Garcia": "Sertanejo",
+  "Syon Trio": "Eletrônico",
+  "Sérgio Reis": "Sertanejo",
+  "Só Pra Contrariar": "Pagode",
+  "Tammy Graham": "Country/Agronejo",
+  "Teodoro & Sampaio": "Sertanejo",
+  "Terra Samba": "Pagode",
+  "Texas Gold Minors": "Country/Agronejo",
+  "Thaeme & Thiago": "Sertanejo",
+  "Thiaguinho": "Pagode",
+  "Titãs": "Rock",
+  "Trio Arizona": "Country/Agronejo",
+  "Victor & Leo": "Sertanejo",
+  "Vintage Culture": "Eletrônico",
+  "Wesley Safadão": "Piseiro/Forró",
+  "Zeca Pagodinho": "Pagode",
+  "Zezé Di Camargo & Luciano": "Sertanejo",
+  "Zé Neto & Cristiano": "Sertanejo",
+  "Zé Vaqueiro": "Piseiro/Forró",
+  "Ícaro & Gilmar": "Sertanejo"
+};
+
+
+// ---------- Análises avançadas ----------
+// Tudo aqui é calculado a partir de FESTIVAL_DATA no próprio navegador, sem nenhuma
+// biblioteca externa. O k-means é uma implementação própria, pequena, determinística
+// (sem Math.random — a inicialização usa uma regra fixa, então roda igual sempre).
+
+function computeGenreDistribution() {
+  const counts = {};
+  FESTIVAL_DATA.nights.forEach(n => n.artists.forEach(a => {
+    const g = ARTIST_GENRE[a] || "Outro";
+    counts[g] = (counts[g] || 0) + 1;
+  }));
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([genre, count]) => ({ genre, count }));
+}
+
+function computeDebutantsByYear() {
+  const debutYear = {};
+  const sorted = FESTIVAL_DATA.nights.slice().sort((a, b) => a.year - b.year);
+  sorted.forEach(n => n.artists.forEach(a => {
+    if (!(a in debutYear)) debutYear[a] = n.year;
+  }));
+  const byYear = {};
+  Object.entries(debutYear).forEach(([a, y]) => {
+    byYear[y] = byYear[y] || [];
+    byYear[y].push(a);
+  });
+  const years = [...new Set(FESTIVAL_DATA.nights.map(n => n.year))].sort((a, b) => a - b);
+  return { debutYear, series: years.map(y => ({ year: y, count: (byYear[y] || []).length, names: byYear[y] || [] })) };
+}
+
+function computeCoBookingPairs(topN) {
+  const pairCounts = {};
+  FESTIVAL_DATA.nights.forEach(n => {
+    const arts = n.artists;
+    for (let i = 0; i < arts.length; i++) {
+      for (let j = i + 1; j < arts.length; j++) {
+        const key = [arts[i], arts[j]].sort().join(" ◆ ");
+        pairCounts[key] = (pairCounts[key] || 0) + 1;
+      }
+    }
+  });
+  return Object.entries(pairCounts)
+    .filter(([, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, topN)
+    .map(([key, count]) => ({ pair: key.split(" ◆ "), count }));
+}
+
+// ---------- K-means (implementação própria, sem biblioteca) ----------
+function kmeans(points, k, iterations) {
+  const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+  const xmin = Math.min(...xs), xmax = Math.max(...xs);
+  const ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const norm = points.map(([x, y]) => [
+    xmax > xmin ? (x - xmin) / (xmax - xmin) : 0.5,
+    ymax > ymin ? (y - ymin) / (ymax - ymin) : 0.5
+  ]);
+
+  // Inicialização determinística: ordena pelo eixo x e escolhe k pontos igualmente espaçados
+  // (sem Math.random — o mesmo dataset sempre produz os mesmos clusters).
+  const sortedIdx = norm.map((_, i) => i).sort((a, b) => norm[a][0] - norm[b][0]);
+  let centroids = [];
+  for (let c = 0; c < k; c++) {
+    const idx = sortedIdx[Math.floor(((c + 0.5) * sortedIdx.length) / k)];
+    centroids.push([norm[idx][0], norm[idx][1]]);
+  }
+
+  let assignments = new Array(norm.length).fill(0);
+  for (let it = 0; it < iterations; it++) {
+    for (let i = 0; i < norm.length; i++) {
+      let best = 0, bestDist = Infinity;
+      for (let c = 0; c < k; c++) {
+        const dx = norm[i][0] - centroids[c][0], dy = norm[i][1] - centroids[c][1];
+        const d = dx * dx + dy * dy;
+        if (d < bestDist) { bestDist = d; best = c; }
+      }
+      assignments[i] = best;
+    }
+    const sums = Array.from({ length: k }, () => [0, 0, 0]);
+    for (let i = 0; i < norm.length; i++) {
+      const c = assignments[i];
+      sums[c][0] += norm[i][0]; sums[c][1] += norm[i][1]; sums[c][2]++;
+    }
+    for (let c = 0; c < k; c++) {
+      if (sums[c][2] > 0) centroids[c] = [sums[c][0] / sums[c][2], sums[c][1] / sums[c][2]];
+    }
+  }
+  return assignments;
+}
+
+function computeArtistClusters() {
+  const appearances = {};
+  const lastYear = {};
+  FESTIVAL_DATA.nights.forEach(n => n.artists.forEach(a => {
+    appearances[a] = (appearances[a] || 0) + 1;
+    lastYear[a] = Math.max(lastYear[a] || 0, n.year);
+  }));
+
+  const names = Object.keys(appearances);
+  const points = names.map(a => [appearances[a], lastYear[a]]);
+  const K = 4;
+  const assignments = kmeans(points, K, 20);
+
+  // Rotula cada cluster pela característica média (aparições × recência)
+  const stats = Array.from({ length: K }, () => ({ sumApp: 0, sumYear: 0, n: 0 }));
+  names.forEach((a, i) => {
+    const c = assignments[i];
+    stats[c].sumApp += appearances[a];
+    stats[c].sumYear += lastYear[a];
+    stats[c].n++;
+  });
+  const avgApp = stats.map(s => (s.n ? s.sumApp / s.n : 0));
+  const avgYear = stats.map(s => (s.n ? s.sumYear / s.n : 0));
+  const medApp = avgApp.slice().sort((a, b) => a - b)[Math.floor(K / 2)];
+  const medYear = avgYear.slice().sort((a, b) => a - b)[Math.floor(K / 2)];
+
+  const labels = stats.map((s, c) => {
+    const highApp = avgApp[c] >= medApp, recent = avgYear[c] >= medYear;
+    if (highApp && recent) return "Pilares atuais";
+    if (highApp && !recent) return "Lendas do passado";
+    if (!highApp && recent) return "Ascensão recente";
+    return "Aparições pontuais";
+  });
+
+  return names.map((a, i) => ({
+    name: a,
+    appearances: appearances[a],
+    lastYear: lastYear[a],
+    cluster: assignments[i],
+    clusterLabel: labels[assignments[i]]
+  }));
+}
+
+// ==========================================================================
+// Base compartilhada + análises adicionais.
+// Tudo é descritivo e calculado sobre FESTIVAL_DATA — nenhum score novo é criado aqui.
+// ==========================================================================
+function buildPresence() {
+  const years = [...new Set(FESTIVAL_DATA.nights.map(n => n.year))].sort((a, b) => a - b);
+  const byYear = {}, byArtist = {};
+  FESTIVAL_DATA.nights.forEach(n => {
+    byYear[n.year] = byYear[n.year] || new Set();
+    n.artists.forEach(a => {
+      byYear[n.year].add(a);
+      (byArtist[a] = byArtist[a] || new Set()).add(n.year);
+    });
+  });
+  return { years, byYear, byArtist };
+}
+const PRESENCE = buildPresence();
+const DEBUT_INFO = computeDebutantsByYear();
+const CLUSTER_LIST = computeArtistClusters();
+const CLUSTER_BY_NAME = {};
+CLUSTER_LIST.forEach(c => { CLUSTER_BY_NAME[c.name] = c; });
+
+// ---------- Retenção: quem toca em um ano volta no seguinte? ----------
+// Critério SEM circularidade: cada artista é classificado só com o que se sabia até o ano y.
+//   estreante = primeira aparição em y | sequência = também tocou na edição anterior | pausa = já tinha tocado antes, mas não na edição anterior
+function computeRetention() {
+  const { years, byYear, byArtist } = PRESENCE;
+  const debutYear = DEBUT_INFO.debutYear;
+  const prevOf = {};
+  years.forEach((y, i) => { prevOf[y] = i ? years[i - 1] : null; });
+  const series = [];
+  const groups = { streak: { r: 0, b: 0 }, gap: { r: 0, b: 0 }, debut: { r: 0, b: 0 } };
+  years.filter(y => y >= 2010 && byYear[y + 1]).forEach(y => {
+    const base = [...byYear[y]];
+    const ret = base.filter(a => byYear[y + 1].has(a));
+    series.push({ from: y, to: y + 1, base: base.length, ret: ret.length });
+    if (y >= 2011) base.forEach(a => {
+      const cls = debutYear[a] === y ? "debut" : (prevOf[y] && byYear[prevOf[y]].has(a) ? "streak" : "gap");
+      groups[cls].b++;
+      if (byYear[y + 1].has(a)) groups[cls].r++;
+    });
+  });
+  const tot = series.reduce((s, d) => ({ b: s.b + d.base, r: s.r + d.ret }), { b: 0, r: 0 });
+  let skipBack = 0, skipTotal = 0;
+  Object.keys(byArtist).forEach(a => {
+    const ys = byArtist[a];
+    for (let y = 2010; y <= 2024; y++) {
+      if (ys.has(y) && byYear[y + 1] && !ys.has(y + 1) && byYear[y + 2]) { skipTotal++; if (ys.has(y + 2)) skipBack++; }
+    }
+  });
+  const debYears = years.filter(y => y >= 2010);
+  const withDebut = debYears.filter(y => [...byYear[y]].some(a => debutYear[a] === y)).length;
+  return {
+    series,
+    overall: { r: tot.r, b: tot.b, rate: tot.r / tot.b },
+    groups,
+    skip: { back: skipBack, total: skipTotal },
+    debutEditions: { withDebut, total: debYears.length }
+  };
+}
+const RETENTION = computeRetention();
+
+// Nas edições 2015+ (formato fixo de 4 noites): em quantas edições cada noite teve ao menos um estreante?
+function computeSlotDebutRates() {
+  const debutYear = DEBUT_INFO.debutYear;
+  const per = {};
+  SLOT_DEFS.forEach(s => { per[s.key] = { editions: new Set(), withDebut: new Set() }; });
+  FESTIVAL_DATA.nights.filter(n => n.year >= 2015).forEach(n => {
+    const k = slotKeyFor(n.weekday, n.weekend);
+    if (!k) return;
+    per[k].editions.add(n.year);
+    if (n.artists.some(a => debutYear[a] === n.year)) per[k].withDebut.add(n.year);
+  });
+  const out = {};
+  Object.keys(per).forEach(k => { out[k] = { editions: per[k].editions.size, withDebut: per[k].withDebut.size }; });
+  return out;
+}
+
+// ---------- Dossiê de um artista (alimenta o "Por que apareceu aqui?") ----------
+function computeArtistDossier(name) {
+  const ys = [...(PRESENCE.byArtist[name] || [])].sort((a, b) => a - b);
+  if (!ys.length) return null;
+  const recs = FESTIVAL_DATA.nights.filter(n => n.artists.includes(name));
+  const dayCounts = { Sexta: 0, "Sábado": 0, outros: 0, semData: 0 };
+  const daysByYear = {};
+  recs.forEach(n => {
+    (daysByYear[n.year] = daysByYear[n.year] || new Set()).add(n.weekday || "?");
+    if (n.weekday === "Sexta" || n.weekday === "Sábado") dayCounts[n.weekday]++;
+    else if (n.weekday) dayCounts.outros++;
+    else dayCounts.semData++;
+  });
+  const gaps = [];
+  for (let i = 1; i < ys.length; i++) gaps.push(ys[i] - ys[i - 1]);
+  const avgGap = gaps.length ? gaps.reduce((s, g) => s + g, 0) / gaps.length : null;
+  const eds = PRESENCE.years;
+  const lastIdx = eds.indexOf(ys[ys.length - 1]);
+  let streak = 0;
+  for (let i = lastIdx; i >= 0 && PRESENCE.byArtist[name].has(eds[i]); i--) streak++;
+  const streakStart = eds[lastIdx - streak + 1];
+  const co = {};
+  ys.forEach(y => PRESENCE.byYear[y].forEach(o => { if (o !== name) co[o] = (co[o] || 0) + 1; }));
+  const coTop = Object.entries(co).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5);
+  const cl = CLUSTER_BY_NAME[name];
+  return {
+    name, years: ys, records: recs.length, daysByYear, dayCounts, avgGap, streak, streakStart,
+    editionsSinceLast: eds.length - 1 - lastIdx, coTop,
+    cluster: cl ? cl.clusterLabel : null, genre: ARTIST_GENRE[name] || null,
+    debutYear: DEBUT_INFO.debutYear[name], lastYear: ys[ys.length - 1]
+  };
+}
+
+// ---------- Matriz de recorrência (artistas × edições) ----------
+function computeRecurrenceMatrix(topN, fromYear) {
+  const years = PRESENCE.years.filter(y => y >= fromYear);
+  const rows = Object.keys(PRESENCE.byArtist).map(a => {
+    const present = years.filter(y => PRESENCE.byArtist[a].has(y));
+    return { name: a, count: present.length, last: present.length ? present[present.length - 1] : 0 };
+  }).filter(r => r.count > 0)
+    .sort((a, b) => b.count - a.count || b.last - a.last || a.name.localeCompare(b.name))
+    .slice(0, topN);
+  rows.forEach(r => {
+    r.days = {};
+    FESTIVAL_DATA.nights.forEach(n => {
+      if (n.year >= fromYear && n.artists.includes(r.name)) (r.days[n.year] = r.days[n.year] || new Set()).add(n.weekday || "?");
+    });
+  });
+  return { years, rows };
+}
+
+// ---------- Rede de coedição (quem divide edição com quem) ----------
+function computeCoEditionNetwork(topN, fromYear) {
+  const m = computeRecurrenceMatrix(topN, fromYear);
+  const names = m.rows.map(r => r.name);
+  const edges = [];
+  for (let i = 0; i < names.length; i++) {
+    for (let j = i + 1; j < names.length; j++) {
+      const w = m.years.filter(y => PRESENCE.byArtist[names[i]].has(y) && PRESENCE.byArtist[names[j]].has(y)).length;
+      if (w > 0) edges.push({ a: names[i], b: names[j], w });
+    }
+  }
+  return { nodes: m.rows.map(r => ({ name: r.name, count: r.count })), edges, years: m.years };
+}
+
+// ---------- Sexta × sábado ----------
+function computeWeekdayInsights() {
+  const ns = FESTIVAL_DATA.nights.filter(n => n.date && (n.weekday === "Sexta" || n.weekday === "Sábado"));
+  const per = {};
+  ns.forEach(n => n.artists.forEach(a => {
+    const p = (per[a] = per[a] || { sexta: 0, sabado: 0 });
+    if (n.weekday === "Sexta") p.sexta++; else p.sabado++;
+  }));
+  const all = Object.entries(per).map(([name, v]) => ({ name, sexta: v.sexta, sabado: v.sabado, total: v.sexta + v.sabado }));
+  const top = all.slice().sort((a, b) => b.total - a.total || a.name.localeCompare(b.name)).slice(0, 10);
+  const roles = ["headliner", "second", "crossover", "emerging"];
+  const comp = { Sexta: { nights: 0, roles: {} }, "Sábado": { nights: 0, roles: {} } };
+  roles.forEach(r => { comp.Sexta.roles[r] = 0; comp["Sábado"].roles[r] = 0; });
+  ns.filter(n => n.year >= 2015).forEach(n => {
+    const c = comp[n.weekday];
+    c.nights++;
+    n.artists.forEach(a => { c.roles[(ARTIST_PROFILE[a] || { tag: "second" }).tag]++; });
+  });
+  return { top, all, comp };
+}
+
+// ---------- Qualidade dos dados por ano ----------
+function computeDataQuality() {
+  const out = [];
+  for (let y = FESTIVAL_DATA.meta.firstYear; y <= FESTIVAL_DATA.meta.lastYear; y++) {
+    const ns = FESTIVAL_DATA.nights.filter(n => n.year === y);
+    if (!ns.length) { out.push({ year: y, level: "cancelled" }); continue; }
+    const dated = ns.filter(n => n.date).length;
+    out.push({ year: y, level: dated === ns.length ? "full" : (dated > 0 ? "partial" : "lineup") });
+  }
+  return out;
+}
+
+
+// ---------- Motor de projeção estatística ----------
+// Metodologia: para cada slot fixo (sexta 1º f.d.s. / sábado 1º f.d.s. / sexta 2º f.d.s. / sábado 2º f.d.s.),
+// rankeamos artistas historicamente escalados naquele slot por:
+//   score = 3 × (nº de aparições NO slot) + 1 × (nº de aparições totais no festival) + bônus de recência
+// Depois separamos os candidatos por papel (headliner / segundo nome / crossover / emergente)
+// usando ARTIST_PROFILE (classificação manual), e projetamos 2027–2029 em rodízio pelos candidatos mais
+// bem rankeados de cada papel. ATENÇÃO: o rodízio é uma regra de desenho, não uma evidência estatística
+// (ver Capítulo 8 — Metodologia).
+
+const SLOT_DEFS = [
+  { key: "sex1", label: "Sexta-feira", weekend: 1, weekday: "Sexta", color: "blue" },
+  { key: "sab1", label: "Sábado", weekend: 1, weekday: "Sábado", color: "purple" },
+  { key: "sex2", label: "Sexta-feira", weekend: 2, weekday: "Sexta", color: "green" },
+  { key: "sab2", label: "Sábado", weekend: 2, weekday: "Sábado", color: "orange" }
+];
+
+const ROLE_DEFS = [
+  { tag: "headliner", label: "Headliner" },
+  { tag: "second", label: "Segundo nome" },
+  { tag: "crossover", label: "Crossover" },
+  { tag: "emerging", label: "Emergente" }
+];
+
+function slotKeyFor(weekday, weekend) {
+  const def = SLOT_DEFS.find(s => s.weekday === weekday && s.weekend === weekend);
+  return def ? def.key : null;
+}
+
+function buildCandidatePools() {
+  const overallFreq = {};
+  const overallLastYear = {};
+  const slotFreq = { sex1: {}, sab1: {}, sex2: {}, sab2: {} };
+  const slotLastYear = { sex1: {}, sab1: {}, sex2: {}, sab2: {} };
+
+  FESTIVAL_DATA.nights.forEach(n => {
+    n.artists.forEach(a => {
+      overallFreq[a] = (overallFreq[a] || 0) + 1;
+      overallLastYear[a] = Math.max(overallLastYear[a] || 0, n.year);
+    });
+    const sk = slotKeyFor(n.weekday, n.weekend);
+    if (sk) {
+      n.artists.forEach(a => {
+        slotFreq[sk][a] = (slotFreq[sk][a] || 0) + 1;
+        slotLastYear[sk][a] = Math.max(slotLastYear[sk][a] || 0, n.year);
+      });
+    }
+  });
+
+  function recencyBonus(lastYear) {
+    if (!lastYear) return 0;
+    if (lastYear >= 2023) return 2.5;
+    if (lastYear >= 2019) return 1.2;
+    return 0.3;
+  }
+
+  const pools = {};
+  SLOT_DEFS.forEach(({ key }) => {
+    const candidates = Object.keys(slotFreq[key])
+      .filter(a => !EXCLUDED_FUTURE.has(a))
+      .map(a => {
+        const score = 3 * slotFreq[key][a] + 1 * (overallFreq[a] || 0) + recencyBonus(overallLastYear[a]);
+        const profile = ARTIST_PROFILE[a] || { tag: "second", genre: "Sertanejo" };
+        return { name: a, score, tag: profile.tag, genre: profile.genre, slotAppearances: slotFreq[key][a], overall: overallFreq[a] || 0, recency: recencyBonus(overallLastYear[a]), lastYear: overallLastYear[a] };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    // fallback pool: todos os artistas do festival (fora do slot também), pra papéis sem candidato no slot
+    const fallback = Object.keys(overallFreq)
+      .filter(a => !EXCLUDED_FUTURE.has(a))
+      .map(a => {
+        const score = 1 * (overallFreq[a] || 0) + recencyBonus(overallLastYear[a]);
+        const profile = ARTIST_PROFILE[a] || { tag: "second", genre: "Sertanejo" };
+        return { name: a, score, tag: profile.tag, genre: profile.genre, slotAppearances: 0, overall: overallFreq[a] || 0, recency: recencyBonus(overallLastYear[a]), lastYear: overallLastYear[a] };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    pools[key] = { candidates, fallback };
+  });
+
+  return pools;
+}
+
+const CANDIDATE_POOLS = buildCandidatePools();
+
+// Elegibilidade: só vira nome projetado quem já tocou em 2+ edições distintas (já "voltou" ao menos uma vez).
+// Motivo (medido na base): estreante volta no ano seguinte em ~33% dos casos, então projetar o nome de quem
+// tocou uma única vez seria apostar contra o dado. Esses casos são cobertos pela "vaga aberta a estreante".
+function isEligibleName(name) {
+  return !!(PRESENCE.byArtist[name] && PRESENCE.byArtist[name].size >= 2);
+}
+
+function poolForRole(slotKey, tag) {
+  const pool = CANDIDATE_POOLS[slotKey];
+  const byTag = pool.candidates.filter(c => c.tag === tag && isEligibleName(c.name));
+  if (byTag.length >= 2) return byTag;
+  // completa com fallback filtrado por tag, sem duplicar quem já está em byTag
+  const names = new Set(byTag.map(c => c.name));
+  const fromFallback = pool.fallback.filter(c => c.tag === tag && isEligibleName(c.name) && !names.has(c.name));
+  return byTag.concat(fromFallback);
+}
+
+function normalizeScores(list) {
+  if (!list.length) return list;
+  const max = list[0].score;
+  return list.map(c => ({ ...c, pct: Math.max(8, Math.round((c.score / max) * 100)) }));
+}
+
+// Projeção determinística (rodízio pelo ranking) — única forma de projeção usada no dashboard.
+// Não há componente aleatório: o mesmo histórico sempre produz a mesma projeção.
+//
+// Coerência entre noites: um mesmo artista nunca aparece em mais de uma noite dentro do
+// mesmo ano projetado (se o nome com maior placar pra sexta 1 também lidera sábado 2, ele
+// fica alocado só na noite de placar mais alto — usedInYear é compartilhado entre as 4 noites).
+function deterministicPick(list, yearIndex, usedInYear) {
+  const filtered = list.filter(c => !usedInYear.has(c.name));
+  // Sem candidato elegível livre: retorna null (vaga aberta) em vez de repetir um nome já usado no ano.
+  if (!filtered.length) return null;
+  const pick = filtered[yearIndex % filtered.length];
+  usedInYear.add(pick.name);
+  return pick;
+}
+
+function buildProjection(yearIndex) {
+  const result = {};
+  SLOT_DEFS.forEach(({ key }) => { result[key] = {}; });
+  const usedInYear = new Set(); // compartilhado entre as 4 noites deste ano
+
+  ROLE_DEFS.forEach(({ tag }) => {
+    // Monta a lista ranqueada de cada uma das 4 noites para este papel...
+    const perSlot = SLOT_DEFS.map(({ key }) => ({
+      key,
+      list: normalizeScores(poolForRole(key, tag))
+    }));
+    // ...e processa primeiro a noite onde o candidato nº1 tem o placar mais alto.
+    // Assim, se um artista lidera duas noites ao mesmo tempo, ele fica alocado
+    // na noite onde é estatisticamente mais forte — a outra avança pro próximo colocado.
+    perSlot.sort((a, b) => (b.list[0] ? b.list[0].score : 0) - (a.list[0] ? a.list[0].score : 0));
+
+    perSlot.forEach(({ key, list }) => {
+      const picked = deterministicPick(list, yearIndex, usedInYear);
+      // Metadados só para explicabilidade (posição no ranking e concorrentes); não interferem na escolha.
+      result[key][tag] = picked ? Object.assign({}, picked, {
+        rank: list.findIndex(c => c.name === picked.name) + 1,
+        poolSize: list.length,
+        poolTop: list.slice(0, 6).map(c => ({ name: c.name, score: c.score, pct: c.pct }))
+      }) : null;
+    });
+  });
+
+  return result;
+}
+
+// ==========================================================================
+// Evolução de gêneros por era — complementa as análises de analysis.txt
+// (estreantes, co-booking e clustering ficam naquele arquivo).
+// ==========================================================================
+const ERA_BUCKETS = [
+  { label: "1989–1999", from: 1989, to: 1999 },
+  { label: "2000–2009", from: 2000, to: 2009 },
+  { label: "2010–2019", from: 2010, to: 2019 },
+  { label: "2020–2026", from: 2020, to: 2026 }
+];
+function computeGenreByEra() {
+  const counts = ERA_BUCKETS.map(() => ({}));
+  FESTIVAL_DATA.nights.forEach(n => {
+    const idx = ERA_BUCKETS.findIndex(e => n.year >= e.from && n.year <= e.to);
+    if (idx < 0) return;
+    n.artists.forEach(a => {
+      const g = ARTIST_GENRE[a] || "Outro";
+      counts[idx][g] = (counts[idx][g] || 0) + 1;
+    });
+  });
+  const totals = {};
+  counts.forEach(c => Object.entries(c).forEach(([g, n]) => { totals[g] = (totals[g] || 0) + n; }));
+  const topGenres = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([g]) => g);
+  return { eras: ERA_BUCKETS.map(e => e.label), topGenres, counts };
+}
+const GENRE_BY_ERA = computeGenreByEra();
+
+
+// ---------- UI ----------
+// Sem nenhuma biblioteca externa. Cada bloco roda isolado (safe): se um gráfico falhar, o resto da página continua.
+(function () {
+  const nights = FESTIVAL_DATA.nights;
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const el = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const nfd = (v) => v.toFixed(1).replace(".", ",");
+  const nf1 = (v) => (Math.round(v * 10) / 10).toString().replace(".", ",");
+  const pct = (r, b) => (b ? Math.round((r / b) * 100) : 0);
+  const short = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+
+  function safe(name, fn) {
+    try { fn(); } catch (err) { console.error("Jaguá dashboard — falha em " + name + ":", err); }
+  }
+  function svgEl(tag, attrs) {
+    const e = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs || {}).forEach((k) => e.setAttribute(k, attrs[k]));
+    return e;
+  }
+  function svgText(parent, txt, attrs) {
+    const t = svgEl("text", attrs);
+    t.textContent = txt;
+    parent.appendChild(t);
+    return t;
+  }
+  function withTitle(node, txt) {
+    const t = svgEl("title", {});
+    t.textContent = txt;
+    node.appendChild(t);
+  }
+  function widthOf(node, min, max) {
+    const w = (node && node.clientWidth) || max;
+    return Math.max(min, Math.min(max, w));
+  }
+  const redraws = [];
+  function responsive(fn) { redraws.push(fn); fn(); }
+  function activatable(node, fn) {
+    node.setAttribute("tabindex", "0");
+    node.setAttribute("role", "button");
+    node.addEventListener("click", fn);
+    node.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } });
+  }
+
+  const ROLE_COLORS = { headliner: "#B4842E", second: "#3B6EA5", crossover: "#7C5CA8", emerging: "#3F8F5F" };
+  const ROLE_NAMES = { headliner: "Headliner", second: "Segundo nome", crossover: "Crossover", emerging: "Emergente" };
+  const CLUSTER_COLORS = ["#3B6EA5", "#7C5CA8", "#3F8F5F", "#C97A2E"];
+  const RET = RETENTION;
+  const streakRate = pct(RET.groups.streak.r, RET.groups.streak.b);
+  const gapRate = pct(RET.groups.gap.r, RET.groups.gap.b);
+  const debutRate = pct(RET.groups.debut.r, RET.groups.debut.b);
+  const overallRate = Math.round(RET.overall.rate * 100);
+  const skipRate = pct(RET.skip.back, RET.skip.total);
+
+  // =====================================================================
+  // Dossiê de artista ("Por que ele apareceu aqui?") — gaveta lateral
+  // =====================================================================
+  const drawer = el("drawer"), overlay = el("drawer-overlay"), drawerBody = el("drawer-body");
+  let lastFocus = null;
+
+  function openDrawer(html) {
+    lastFocus = document.activeElement || null;
+    drawerBody.innerHTML = html;
+    drawer.classList.add("open");
+    overlay.classList.add("open");
+    drawer.setAttribute("aria-hidden", "false");
+    document.body.classList.add("no-scroll");
+    const c = el("drawer-close");
+    if (c && c.focus) c.focus();
+  }
+  function closeDrawer() {
+    drawer.classList.remove("open");
+    overlay.classList.remove("open");
+    drawer.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("no-scroll");
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  el("drawer-close").addEventListener("click", closeDrawer);
+  overlay.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+
+  function dayClass(set) {
+    if (!set) return "";
+    const s = [...set];
+    const sex = s.includes("Sexta"), sab = s.includes("Sábado");
+    if (sex && sab) return "mix";
+    if (sex) return "sex";
+    if (sab) return "sab";
+    if (s.some((x) => x !== "?")) return "oth";
+    return "";
+  }
+
+  function dossierHtml(name, ctx) {
+    const d = computeArtistDossier(name);
+    if (!d) return '<h3 class="dz-title">' + esc(name) + '</h3><p>Sem histórico na base.</p>';
+    const tag = (ARTIST_PROFILE[name] || { tag: "second" }).tag;
+    const chips = [];
+    if (d.genre) chips.push('<span class="dz-chip">' + esc(d.genre) + "</span>");
+    if (d.cluster) chips.push('<span class="dz-chip">Arquétipo: ' + esc(d.cluster) + "</span>");
+    chips.push('<span class="dz-chip">Papel (classif. manual): ' + ROLE_NAMES[tag] + "</span>");
+    if (d.debutYear === d.lastYear) chips.push('<span class="dz-chip gold">Estreou em ' + d.debutYear + "</span>");
+
+    let html = '<h3 class="dz-title" id="drawer-title">' + esc(name) + '</h3><div class="dz-chips">' + chips.join("") + "</div>";
+
+    if (ctx && ctx.pick) {
+      const p = ctx.pick;
+      html += '<div class="dz-why"><strong>Por que apareceu aqui?</strong> Na projeção de ' + ctx.year + ', ' + esc(name) +
+        " é a hipótese para <b>" + ROLE_NAMES[ctx.role] + "</b> de <b>" + ctx.slotLabel + "</b>: soma <b>score " + nf1(p.score) +
+        "</b>, " + p.rank + "º entre " + p.poolSize + " candidatos a esse papel nessa noite. Para " + ctx.year +
+        ", a regra de rodízio usa o " + (ctx.yearIndex + 1) + "º candidato ainda disponível do ranking.</div>";
+
+      const slotPart = 3 * p.slotAppearances, totalPart = p.overall, recPart = p.recency, sum = p.score || 1;
+      html += '<div class="dz-section"><h4>Composição do score</h4><div class="dz-stack">' +
+        '<span style="width:' + (slotPart / sum) * 100 + '%;background:#3B6EA5" title="aparições no slot"></span>' +
+        '<span style="width:' + (totalPart / sum) * 100 + '%;background:#7C5CA8" title="aparições totais"></span>' +
+        '<span style="width:' + (recPart / sum) * 100 + '%;background:#B4842E" title="recência"></span></div>' +
+        '<dl class="dz-kv">' +
+        "<dt>3 × aparições neste slot (" + p.slotAppearances + ")</dt><dd>" + nf1(slotPart) + "</dd>" +
+        "<dt>1 × aparições totais catalogadas (" + p.overall + ")</dt><dd>" + nf1(totalPart) + "</dd>" +
+        "<dt>Bônus de recência (última em " + p.lastYear + ")</dt><dd>" + nf1(recPart) + "</dd>" +
+        '<dt class="total">Score</dt><dd class="total">' + nf1(p.score) + "</dd>" +
+        "<dt>Score relativo (1º do papel = 100)</dt><dd>" + p.pct + "</dd></dl></div>";
+
+      const top = p.poolTop.slice();
+      html += '<div class="dz-section"><h4>Concorrência neste papel e noite</h4><div class="dz-comp">' +
+        top.map((c) => '<div class="dz-comp-row' + (c.name === name ? " me" : "") + '"><div>' + esc(c.name) +
+          '<div class="dz-comp-track"><i style="width:' + c.pct + '%"></i></div></div><span style="text-align:right;font-family:var(--font-mono)">' + nf1(c.score) + "</span></div>").join("") +
+        "</div>" + (top.some((c) => c.name === name) ? "" : '<p class="dz-note" style="border:none;margin-top:.5rem">Fora dos 6 primeiros do ranking (posição ' + p.rank + ").</p>") + "</div>";
+    } else {
+      html += '<div class="dz-why">Este dossiê resume o que a base mostra sobre ' + esc(name) + ". Ele descreve o passado; não indica presença em edições futuras.</div>";
+    }
+
+    html += '<div class="dz-section"><h4>Histórico de participações</h4><div class="yr-chips">' +
+      d.years.map((y) => '<span class="yr-chip ' + dayClass(d.daysByYear[y]) + '" title="' + y + ": " + [...(d.daysByYear[y] || [])].map((x) => (x === "?" ? "data não confirmada" : x)).join(", ") + '">' + y + "</span>").join("") +
+      '</div><div class="legend-row"><span><i class="lg-dot" style="background:#3B6EA5"></i>sexta</span><span><i class="lg-dot" style="background:#7C5CA8"></i>sábado</span><span><i class="lg-dot" style="background:#B4842E"></i>outro dia</span><span><i class="lg-dot" style="background:#8FB2CC"></i>sem data</span></div>' +
+      '<dl class="dz-kv">' +
+      "<dt>Primeira / última participação</dt><dd>" + d.years[0] + " / " + d.lastYear + "</dd>" +
+      "<dt>Edições realizadas desde a última</dt><dd>" + d.editionsSinceLast + "</dd>" +
+      "<dt>Sequência mais recente</dt><dd>" + d.streak + " ed. (" + d.streakStart + "–" + d.lastYear + ")</dd>" +
+      "<dt>Intervalo médio entre participações</dt><dd>" + (d.avgGap === null ? "—" : nf1(d.avgGap) + " ano(s)") + "</dd>" +
+      "<dt>Dia em que costuma tocar</dt><dd>sex " + d.dayCounts.Sexta + " · sáb " + d.dayCounts["Sábado"] + (d.dayCounts.outros ? " · outros " + d.dayCounts.outros : "") + (d.dayCounts.semData ? " · s/ data " + d.dayCounts.semData : "") + "</dd></dl></div>";
+
+    if (d.coTop.length) {
+      html += '<div class="dz-section"><h4>Afinidade: com quem divide edição</h4><dl class="dz-kv">' +
+        d.coTop.map((c) => "<dt>" + esc(c[0]) + "</dt><dd>" + c[1] + " ed.</dd>").join("") + "</dl></div>";
+    }
+
+    let grp, rate, gb, gr;
+    if (d.debutYear === d.lastYear) { grp = "estreantes"; gr = RET.groups.debut.r; gb = RET.groups.debut.b; rate = debutRate; }
+    else if (d.streak >= 2) { grp = "artistas que já vinham de sequência"; gr = RET.groups.streak.r; gb = RET.groups.streak.b; rate = streakRate; }
+    else { grp = "artistas que voltavam após uma pausa"; gr = RET.groups.gap.r; gb = RET.groups.gap.b; rate = gapRate; }
+    html += '<div class="dz-section"><h4>Leitura de retorno (base histórica)</h4><p style="font-size:.88rem;margin:0;color:var(--ink-soft)">Na situação em que ' + esc(name) +
+      " se encontra na última edição em que tocou, o grupo de <b>" + grp + "</b> voltou na edição do ano seguinte em <b>" + rate + "%</b> dos casos (" + gr + " de " + gb + ", 2011–2025). É uma taxa de grupo, não uma probabilidade individual.</p></div>";
+
+    html += '<p class="dz-note">Contagens são de registros de noite catalogados na base. Nada aqui indica contratação: é a leitura estatística do histórico.</p>';
+    return html;
+  }
+  function openDossier(name, ctx) { openDrawer(dossierHtml(name, ctx)); }
+
+  function bindArtistLinks(container, getCtx) {
+    container.addEventListener("click", (e) => {
+      const t = e.target && e.target.closest ? e.target.closest(".artist-link") : null;
+      if (!t) return;
+      const name = t.getAttribute("data-artist");
+      openDossier(name, getCtx ? getCtx(name) : null);
+    });
+  }
+
+  // =====================================================================
+  // Helpers de gráfico (SVG puro, redesenhados ao redimensionar)
+  // =====================================================================
+  function renderVerticalBars(container, items, o) {
+    o = o || {};
+    const W = widthOf(container, 300, 900), H = W < 480 ? 270 : 320;
+    const ML = 36, MR = 10, MT = 20, MB = 50;
+    const innerW = W - ML - MR, innerH = H - MT - MB;
+    const dataMax = Math.max(1, ...items.map((d) => d.value || 0));
+    const niceMax = o.yMax || Math.ceil(dataMax / 5) * 5 || dataMax;
+    const n = items.length, slot = innerW / n, barW = Math.max(3, slot * 0.66);
+    const step = Math.max(1, Math.ceil(15 / slot));
+    const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "bar-chart-svg", role: "img" });
+
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round((niceMax * i) / 4), y = MT + innerH - (innerH * i) / 4;
+      svg.appendChild(svgEl("line", { x1: ML, x2: W - MR, y1: y, y2: y, class: "bc-gridline" }));
+      svgText(svg, v + (o.ySuffix || ""), { x: ML - 6, y: y + 3, class: "bc-axis-label", "text-anchor": "end" });
+    }
+    items.forEach((d, i) => {
+      const x = ML + slot * i + (slot - barW) / 2, cx = x + barW / 2, base = MT + innerH;
+      if (d.value === null || d.value === undefined) {
+        if (d.kind === "cancelled") {
+          const t = svgText(svg, "×", { x: cx, y: base - 3, class: "bc-value-label", "text-anchor": "middle", fill: "#B33A3A" });
+          withTitle(t, d.label + ": " + d.note);
+        } else {
+          const r = svgEl("rect", { x, y: base - 12, width: barW, height: 12, rx: 2, class: "bc-unknown" });
+          withTitle(r, d.label + ": " + (d.note || "sem dado"));
+          svg.appendChild(r);
+        }
+      } else {
+        const bh = (d.value / niceMax) * innerH, y = base - bh;
+        const rect = svgEl("rect", { x, y, width: barW, height: Math.max(bh, 1), rx: 2, fill: d.color || o.barColor || "#6E9CC4", class: "bc-bar" });
+        withTitle(rect, d.label + ": " + d.value + (d.unit || "") + (d.note ? " — " + d.note : ""));
+        svg.appendChild(rect);
+        if (slot >= 17 || i % step === 0) svgText(svg, d.value, { x: cx, y: y - 5, class: "bc-value-label", "text-anchor": "middle" });
+      }
+      if (i % step === 0) {
+        const ly = H - MB + 15;
+        const lab = svgText(svg, d.label, { x: cx, y: ly, class: "bc-axis-label", "text-anchor": slot < 30 ? "end" : "middle" });
+        if (slot < 30) lab.setAttribute("transform", "rotate(-55 " + cx + " " + ly + ")");
+      }
+    });
+    if (o.ref) {
+      const ry = MT + innerH - (o.ref.value / niceMax) * innerH;
+      svg.appendChild(svgEl("line", { x1: ML, x2: W - MR, y1: ry, y2: ry, class: "bc-ref" }));
+      svgText(svg, o.ref.label, { x: W - MR - 2, y: ry - 5, class: "bc-ref-label", "text-anchor": "end" });
+    }
+    container.innerHTML = "";
+    container.appendChild(svg);
+  }
+
+  function renderDiverging(container, rows) {
+    const W = widthOf(container, 300, 900), rowH = 30, MT = 26, H = MT + rows.length * rowH + 6;
+    const labelW = W < 520 ? 118 : 172, mid = labelW + (W - labelW) / 2, half = (W - labelW) / 2 - 30;
+    const max = Math.max(1, ...rows.map((r) => Math.max(r.sexta, r.sabado)));
+    const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "bar-chart-svg", role: "img" });
+    svgText(svg, "← Sexta", { x: mid - 6, y: 14, class: "bc-axis-label", "text-anchor": "end", fill: "#3B6EA5" });
+    svgText(svg, "Sábado →", { x: mid + 6, y: 14, class: "bc-axis-label", "text-anchor": "start", fill: "#7C5CA8" });
+    svg.appendChild(svgEl("line", { x1: mid, x2: mid, y1: MT - 4, y2: H - 2, stroke: "#C9CDD8" }));
+    rows.forEach((r, i) => {
+      const y = MT + i * rowH, w1 = (r.sexta / max) * half, w2 = (r.sabado / max) * half;
+      const nm = svgText(svg, short(r.name, W < 520 ? 17 : 26), { x: 4, y: y + 17, class: "bc-name link" });
+      withTitle(nm, r.name + " — abrir dossiê");
+      nm.addEventListener("click", () => openDossier(r.name));
+      const a = svgEl("rect", { x: mid - w1, y: y + 3, width: Math.max(w1, r.sexta ? 3 : 0), height: 20, rx: 3, fill: "#3B6EA5", class: "bc-bar" });
+      withTitle(a, r.name + ": " + r.sexta + " noite(s) de sexta");
+      svg.appendChild(a);
+      const b = svgEl("rect", { x: mid, y: y + 3, width: Math.max(w2, r.sabado ? 3 : 0), height: 20, rx: 3, fill: "#7C5CA8", class: "bc-bar" });
+      withTitle(b, r.name + ": " + r.sabado + " noite(s) de sábado");
+      svg.appendChild(b);
+      svgText(svg, r.sexta, { x: mid - w1 - 5, y: y + 17, class: "bc-value-label", "text-anchor": "end" });
+      svgText(svg, r.sabado, { x: mid + w2 + 5, y: y + 17, class: "bc-value-label", "text-anchor": "start" });
+    });
+    container.innerHTML = "";
+    container.appendChild(svg);
+  }
+
+  function renderStacked(container, rows) {
+    const W = widthOf(container, 300, 900), rowH = 54, MT = 8, H = MT + rows.length * rowH + 4;
+    const labelW = W < 520 ? 74 : 96, innerW = W - labelW - 50;
+    const maxTotal = Math.max(...rows.map((r) => r.segments.reduce((s, x) => s + x.value, 0)));
+    const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "bar-chart-svg", role: "img" });
+    rows.forEach((r, i) => {
+      const y = MT + i * rowH;
+      const lab = svgText(svg, r.label, { x: 4, y: y + 30, class: "bc-name" });
+      lab.setAttribute("font-weight", "700");
+      let x = labelW;
+      r.segments.forEach((s) => {
+        const w = (s.value / maxTotal) * innerW;
+        const rect = svgEl("rect", { x, y: y + 8, width: Math.max(w - 1.5, 0), height: 34, rx: 3, fill: s.color, class: "bc-bar" });
+        withTitle(rect, r.label + " · " + s.name + ": " + nf1(s.value) + " por noite");
+        svg.appendChild(rect);
+        if (w > 30) svgText(svg, nf1(s.value), { x: x + w / 2, y: y + 30, class: "bc-value-label on-bar", "text-anchor": "middle" });
+        x += w;
+      });
+      svgText(svg, nf1(r.segments.reduce((s, q) => s + q.value, 0)), { x: x + 8, y: y + 30, class: "bc-value-label" });
+    });
+    container.innerHTML = "";
+    container.appendChild(svg);
+  }
+
+  function renderScatter(container, points) {
+    const W = widthOf(container, 300, 900), H = W < 480 ? 280 : 340, ML = 40, MR = 14, MT = 14, MB = 32;
+    const innerW = W - ML - MR, innerH = H - MT - MB;
+    const years = points.map((p) => p.lastYear), apps = points.map((p) => p.appearances);
+    const minY = Math.min(...years), maxY = Math.max(...years), maxApp = Math.max(...apps);
+    const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "bar-chart-svg", role: "img" });
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round((maxApp * i) / 4), y = MT + innerH - (innerH * i) / 4;
+      svg.appendChild(svgEl("line", { x1: ML, x2: W - MR, y1: y, y2: y, class: "bc-gridline" }));
+      svgText(svg, v, { x: ML - 6, y: y + 3, class: "bc-axis-label", "text-anchor": "end" });
+    }
+    for (let i = 0; i <= 5; i++) {
+      svgText(svg, Math.round(minY + ((maxY - minY) * i) / 5), { x: ML + (innerW * i) / 5, y: H - MB + 16, class: "bc-axis-label", "text-anchor": "middle" });
+    }
+    svgText(svg, "aparições →", { x: 4, y: 10, class: "bc-axis-label" });
+    points.forEach((p, i) => {
+      const jx = ((i * 37) % 9 - 4) * 0.9, jy = ((i * 53) % 7 - 3) * 0.7;
+      const x = ML + (maxY > minY ? (p.lastYear - minY) / (maxY - minY) : 0.5) * innerW + jx;
+      const y = MT + innerH - (maxApp > 0 ? p.appearances / maxApp : 0) * innerH + jy;
+      const c = svgEl("circle", { cx: x, cy: y, r: 5, fill: CLUSTER_COLORS[p.cluster % 4], opacity: 0.8, class: "bc-bar", style: "cursor:pointer" });
+      withTitle(c, p.name + " — " + p.appearances + " aparições, última em " + p.lastYear + " (" + p.clusterLabel + ")");
+      c.addEventListener("click", () => openDossier(p.name));
+      svg.appendChild(c);
+    });
+    svgText(svg, "ano da última participação →", { x: W - MR, y: H - 3, class: "bc-axis-label", "text-anchor": "end" });
+    container.innerHTML = "";
+    container.appendChild(svg);
+  }
+
+  function renderGroupedBars(container, eras, seriesNames, dataByEra, colors) {
+    const W = widthOf(container, 300, 900), H = 330, ML = 34, MR = 8, MT = 16, MB = 44;
+    const innerW = W - ML - MR, innerH = H - MT - MB;
+    const groupW = innerW / eras.length, barW = Math.max(3, (groupW * 0.8) / seriesNames.length);
+    let max = 1;
+    dataByEra.forEach((o) => seriesNames.forEach((g) => { max = Math.max(max, o[g] || 0); }));
+    const niceMax = Math.ceil(max / 5) * 5 || max;
+    const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "bar-chart-svg", role: "img" });
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round((niceMax * i) / 4), y = MT + innerH - (innerH * i) / 4;
+      svg.appendChild(svgEl("line", { x1: ML, x2: W - MR, y1: y, y2: y, class: "bc-gridline" }));
+      svgText(svg, v, { x: ML - 6, y: y + 3, class: "bc-axis-label", "text-anchor": "end" });
+    }
+    eras.forEach((era, gi) => {
+      const gx = ML + groupW * gi + (groupW - barW * seriesNames.length) / 2;
+      seriesNames.forEach((g, si) => {
+        const val = dataByEra[gi][g] || 0, bh = (val / niceMax) * innerH, x = gx + si * barW, y = MT + innerH - bh;
+        const rect = svgEl("rect", { x, y, width: barW - 1.5, height: Math.max(bh, 1), fill: colors[si], class: "bc-bar" });
+        withTitle(rect, era + " · " + g + ": " + val + " atrações");
+        svg.appendChild(rect);
+        if (barW >= 14) svgText(svg, val, { x: x + (barW - 1.5) / 2, y: y - 4, class: "bc-value-label", "text-anchor": "middle" });
+      });
+      const lab = svgText(svg, era, { x: ML + groupW * gi + groupW / 2, y: H - MB + 22, class: "bc-axis-label", "text-anchor": "middle" });
+      lab.setAttribute("font-weight", "600");
+    });
+    container.innerHTML = "";
+    container.appendChild(svg);
+  }
+
+  // Matriz artistas × edições (cor = dia da semana)
+  function renderMatrix(container, matrix) {
+    const cols = matrix.years.length, rows = matrix.rows;
+    const W = widthOf(container, 560, 900), labelW = 150, countW = 30, headerH = 30, rowH = 22;
+    const cellW = (W - labelW - countW - 8) / cols, H = headerH + rows.length * rowH + 4;
+    const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, class: "mx-svg", role: "img" });
+    matrix.years.forEach((y, ci) => {
+      const label = cellW >= 30 ? String(y) : "’" + String(y).slice(2);
+      svgText(svg, label, { x: labelW + ci * cellW + cellW / 2, y: headerH - 8, class: "mx-year", "text-anchor": "middle" });
+    });
+    rows.forEach((r, ri) => {
+      const y = headerH + ri * rowH;
+      const nm = svgText(svg, short(r.name, 22), { x: 2, y: y + 15, class: "mx-name" });
+      withTitle(nm, r.name + " — abrir dossiê");
+      nm.addEventListener("click", () => openDossier(r.name));
+      matrix.years.forEach((yr, ci) => {
+        const x = labelW + ci * cellW, days = r.days[yr];
+        const w = cellW - 2, h = rowH - 4;
+        if (!days) {
+          svg.appendChild(svgEl("rect", { x: x + 1, y: y + 2, width: w, height: h, rx: 3, fill: "#E3EAE8" }));
+          return;
+        }
+        const s = [...days], sex = s.includes("Sexta"), sab = s.includes("Sábado");
+        const txt = r.name + " · " + yr + " · " + s.map((q) => (q === "?" ? "data não confirmada" : q)).join(", ");
+        if (sex && sab) {
+          [["#3B6EA5", 0], ["#7C5CA8", w / 2]].forEach((q) => {
+            const c = svgEl("rect", { x: x + 1 + q[1], y: y + 2, width: w / 2, height: h, fill: q[0], class: "mx-cell" });
+            withTitle(c, txt);
+            svg.appendChild(c);
+          });
+        } else {
+          const color = sex ? "#3B6EA5" : sab ? "#7C5CA8" : (s.some((q) => q !== "?") ? "#B4842E" : "#8FB2CC");
+          const c = svgEl("rect", { x: x + 1, y: y + 2, width: w, height: h, rx: 3, fill: color, class: "mx-cell" });
+          withTitle(c, txt);
+          svg.appendChild(c);
+        }
+      });
+      svgText(svg, r.count, { x: labelW + cols * cellW + 8, y: y + 15, class: "mx-year" });
+    });
+    container.innerHTML = "";
+    container.appendChild(svg);
+  }
+
+  // Rede de coedição em círculo (posições determinísticas)
+  function renderNetwork(container, net) {
+    const S = widthOf(container, 300, 640), H = Math.round(S * (S < 480 ? 1.0 : 0.86));
+    const cx = S / 2, cy = H / 2, R = Math.min(cx, cy) - (S < 480 ? 76 : 104), N = net.nodes.length;
+    const maxW = Math.max(...net.edges.map((e) => e.w)), maxC = Math.max(...net.nodes.map((n) => n.count));
+    const pos = {};
+    net.nodes.forEach((n, i) => {
+      const a = -Math.PI / 2 + (2 * Math.PI * i) / N;
+      pos[n.name] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a), a };
+    });
+    const svg = svgEl("svg", { viewBox: "0 0 " + S + " " + H, class: "bar-chart-svg", role: "img" });
+    const edgeEls = [];
+    net.edges.filter((e) => e.w >= 4).forEach((e) => {
+      const p = pos[e.a], q = pos[e.b];
+      const base = 0.14 + (e.w / maxW) * 0.6;
+      const l = svgEl("line", { x1: p.x, y1: p.y, x2: q.x, y2: q.y, class: "net-edge", "stroke-width": 0.8 + (e.w / maxW) * 5, opacity: base });
+      withTitle(l, e.a + " + " + e.b + ": " + e.w + " edições em comum");
+      svg.appendChild(l);
+      edgeEls.push({ l, a: e.a, b: e.b, base });
+    });
+    function highlight(name) {
+      edgeEls.forEach((x) => { x.l.setAttribute("opacity", !name ? x.base : (x.a === name || x.b === name ? 0.95 : 0.04)); });
+    }
+    net.nodes.forEach((n) => {
+      const p = pos[n.name], g = svgEl("g", { class: "net-node" });
+      const c = svgEl("circle", { cx: p.x, cy: p.y, r: 5 + 8 * (n.count / maxC) });
+      withTitle(c, n.name + ": " + n.count + " edições desde 2008");
+      g.appendChild(c);
+      const cosA = Math.cos(p.a), sinA = Math.sin(p.a), off = 12 + 8 * (n.count / maxC);
+      svgText(g, short(n.name, S < 480 ? 15 : 24), {
+        x: p.x + cosA * off, y: p.y + sinA * off + 4,
+        "text-anchor": cosA > 0.2 ? "start" : cosA < -0.2 ? "end" : "middle"
+      });
+      g.addEventListener("mouseenter", () => highlight(n.name));
+      g.addEventListener("mouseleave", () => highlight(null));
+      g.addEventListener("click", () => openDossier(n.name));
+      svg.appendChild(g);
+    });
+    container.innerHTML = "";
+    container.appendChild(svg);
+  }
+
+  // =====================================================================
+  // Hero
+  // =====================================================================
+  const allArtists = new Set();
+  nights.forEach((n) => n.artists.forEach((a) => allArtists.add(a)));
+  safe("hero", () => {
+    el("stat-artists").textContent = allArtists.size;
+    const g = new Set();
+    allArtists.forEach((a) => { if (ARTIST_GENRE[a]) g.add(ARTIST_GENRE[a]); });
+    el("stat-genres").textContent = g.size;
+  });
+
+  // =====================================================================
+  // Capítulo 1 — linha do tempo (marcos com fonte já descrita no Capítulo 8)
+  // =====================================================================
+  safe("timeline", () => {
+    const events = [
+      { y: "1989", t: "Tudo começa num campo", d: "Primeira edição no Campo do Padre: rodeio de bairro, com cerca de 18 mil pessoas. No ano seguinte, já eram 30 mil." },
+      { y: "1992", t: "A festa muda de casa", d: "Vai para o Parque Santa Maria, e o público divulgado chega a cerca de 45 mil." },
+      { y: "1995", t: "10 dias de festival", d: "Festival de inverno com a TV Bandeirantes e 11 megashows — sertanejo, pop, rock e axé no mesmo palco." },
+      { y: "2000", t: "Começa a era Red Eventos", d: "Nova sede e contrato de exclusividade com a Rede Globo por dois anos. A edição teve 9 noites de show." },
+      { y: "2005", t: "O número mais alto da história", d: "O festival divulgou mais de 300 mil pessoas — número divulgado, sem auditoria independente." },
+      { y: "2009", t: "A edição que não terminou", d: "Na madrugada de 23/05, um tumulto durante o show de João Bosco & Vinícius deixou 4 mortos. Os dois últimos dias foram cancelados por ordem judicial.", cls: "tl-warn" },
+      { y: "2015", t: "4 noites e pronto", d: "Duas sextas e dois sábados viram o formato fixo — e não mudam até hoje." },
+      { y: "2020", t: "Um ano sem festival", d: "Cancelado por causa da COVID-19. A numeração das edições pula o ano.", cls: "tl-muted" },
+      { y: "2022", t: "Entra o Circuito Sertanejo", d: "Parceria entre Globo, Ambev e Diverti, com transmissão ao vivo no Multishow e no Globoplay." },
+      { y: "2026", t: "37ª edição", d: "De 18 a 26 de setembro: a última entrada da base e o ponto de partida da projeção." }
+    ];
+    const ol = el("timeline");
+    events.forEach((e) => {
+      const li = document.createElement("li");
+      if (e.cls) li.className = e.cls;
+      li.innerHTML = '<span class="tl-year">' + e.y + '</span><p class="tl-title">' + e.t + '</p><p class="tl-text">' + e.d + "</p>";
+      ol.appendChild(li);
+    });
+  });
+
+  // =====================================================================
+  // Capítulo 2 — formato (eixo cronológico; anos sem dado não são preenchidos)
+  // =====================================================================
+  safe("format", () => {
+    const meta = FESTIVAL_DATA.meta, fmtMap = {};
+    FESTIVAL_DATA.formatEvolution.forEach((f) => { fmtMap[f.year] = f; });
+    const regime = (f) => (f.nights >= 8 ? "long" : f.nights === 6 ? "six" : f.nights === 4 ? "four" : "other");
+    const REG_COLOR = { long: "#6E9CC4", six: "#7C5CA8", four: "#B4842E", other: "#8B93A3" };
+    const items = [];
+    for (let y = meta.firstYear; y <= meta.lastYear; y++) {
+      if (meta.cancelledYears.indexOf(y) >= 0) items.push({ label: y, value: null, kind: "cancelled", note: "edição cancelada (COVID-19)" });
+      else if (fmtMap[y]) {
+        const f = fmtMap[y];
+        items.push({ label: y, value: f.nights, color: REG_COLOR[regime(f)], unit: f.basis === "dias" ? " dias" : " noites", note: f.note });
+      } else items.push({ label: y, value: null, kind: "unknown", note: "duração não confirmada por nenhuma fonte" });
+    }
+    responsive(() => renderVerticalBars(el("chart-format"), items, {}));
+    el("legend-format").innerHTML =
+      '<span><i class="lg-dot" style="background:#6E9CC4"></i>8+ noites/dias</span><span><i class="lg-dot" style="background:#7C5CA8"></i>6 noites</span>' +
+      '<span><i class="lg-dot" style="background:#B4842E"></i>4 noites (formato atual)</span><span><i class="lg-dot" style="background:transparent;border:1px dashed #9AA6A4"></i>duração não confirmada</span><span><b style="color:#B33A3A">×</b> cancelada</span>';
+
+    const pre = FESTIVAL_DATA.formatEvolution.filter((f) => f.year < 2015);
+    const six = pre.filter((f) => f.nights === 6).map((f) => f.year);
+    const firstFour = FESTIVAL_DATA.formatEvolution.filter((f) => f.nights === 4)[0].year;
+    el("insight-format").innerHTML = '<span class="insight-icon">📉</span><span><strong>Do maratonão ao formato enxuto.</strong> Desde ' + firstFour +
+      " são sempre 4 noites (2 sextas + 2 sábados). Antes disso, as edições documentadas iam de " + Math.min(...pre.map((f) => f.nights)) + " a " + Math.max(...pre.map((f) => f.nights)) +
+      " noites/dias, com 6 noites em " + Math.min(...six) + "–" + Math.max(...six) + ". (1995 e 2006 medem dias de evento; as demais, noites de show — leia como ordem de grandeza.)</span>";
+  });
+
+  // =====================================================================
+  // Capítulo 3 — sexta × sábado
+  // =====================================================================
+  safe("weekday", () => {
+    const wd = computeWeekdayInsights();
+    responsive(() => renderDiverging(el("chart-weekday-split"), wd.top));
+    const roles = ["headliner", "second", "crossover", "emerging"];
+    const avg = (day, r) => (wd.comp[day].nights ? wd.comp[day].roles[r] / wd.comp[day].nights : 0);
+    const rows = ["Sexta", "Sábado"].map((day) => ({
+      label: day === "Sexta" ? "Sexta-feira" : "Sábado",
+      segments: roles.map((r) => ({ value: avg(day, r), color: ROLE_COLORS[r], name: ROLE_NAMES[r] }))
+    }));
+    responsive(() => renderStacked(el("chart-weekday-comp"), rows));
+    el("legend-comp").innerHTML = roles.map((r) => '<span><i class="lg-dot" style="background:' + ROLE_COLORS[r] + '"></i>' + ROLE_NAMES[r] + "</span>").join("");
+
+    const eligible = wd.all.filter((a) => a.total >= 6);
+    const friday = eligible.slice().sort((a, b) => b.sexta / b.total - a.sexta / a.total || b.total - a.total)[0];
+    const saturday = eligible.slice().sort((a, b) => b.sabado / b.total - a.sabado / a.total || b.total - a.total)[0];
+    const hS = avg("Sexta", "headliner"), hB = avg("Sábado", "headliner"), cS = avg("Sexta", "crossover"), cB = avg("Sábado", "crossover");
+    const moreHead = hS > hB ? "sexta" : "sábado", moreCross = cS > cB ? "sexta" : "sábado";
+    const art = (d) => (d === "sexta" ? "a sexta" : "o sábado");
+    const frTxt = friday.sexta + " de " + friday.total + " vezes na sexta";
+    const saTxt = saturday.sexta === 0 ? "todas as " + saturday.total + " vezes no sábado — nunca na sexta" : saturday.sabado + " de " + saturday.total + " no sábado";
+    el("insight-weekday").innerHTML = '<span class="insight-icon">🎤</span><span><strong>O dia importa menos que o artista.</strong> ' + esc(friday.name) + " tocou " + frTxt + ". " + esc(saturday.name) + "? " + saTxt +
+      ". Na hora de montar a noite, " + art(moreHead) + " costuma trazer mais headliners (" + nfd(Math.max(hS, hB)) + " por noite contra " + nfd(Math.min(hS, hB)) + ") e " + art(moreCross) + " abre mais espaço pra crossover (" +
+      nfd(Math.max(cS, cB)) + " contra " + nfd(Math.min(cS, cB)) + "). Ou seja: a teoria de que o sábado é sempre a noite dos gigantes não se confirma nos dados. <small>(Papéis = classificação manual, ver Capítulo 8.)</small></span>";
+  });
+
+  // =====================================================================
+  // Capítulo 4 — recorrência, retenção e matriz
+  // =====================================================================
+  const fivep = (n) => n + " chegaram a 5 aparições ou mais.";
+  safe("recurrence", () => {
+    const counts = {};
+    nights.forEach((n) => n.artists.forEach((a) => { counts[a] = (counts[a] || 0) + 1; }));
+    const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 12);
+    const maxCount = ranked[0][1];
+    const rankList = el("rank-list");
+    ranked.forEach((r) => {
+      const li = document.createElement("li");
+      li.innerHTML = '<span class="rank-name">' + esc(r[0]) + '</span><span class="rank-bar-wrap"><span class="rank-bar" style="width:' + (r[1] / maxCount) * 100 + '%"></span></span><span class="rank-count">' + r[1] + "×</span>";
+      li.title = "Ver as aparições de " + r[0] + " no explorador";
+      activatable(li, () => jumpToExplorerSearch(r[0]));
+      rankList.appendChild(li);
+    });
+    const top3 = ranked.slice(0, 3), top3Sum = top3.reduce((s, r) => s + r[1], 0);
+    const totalSlots = nights.reduce((s, n) => s + n.artists.length, 0);
+    const onceCount = Object.keys(counts).filter((k) => counts[k] === 1).length;
+    const fiveUp = Object.keys(counts).filter((k) => counts[k] >= 5).length;
+    el("lead-recurrence").textContent = "Dos " + Object.keys(counts).length + " artistas da base, " + Math.round((onceCount / Object.keys(counts).length) * 100) + "% subiram ao palco uma única vez. Só " + fivep(fiveUp) +
+      " Existe um clube fechado no Jaguariúna — quem são os sócios, e por que o resto entra e some?";
+    const lead = top3[0][1] === top3[1][1]
+      ? esc(top3[0][0]) + " e " + esc(top3[1][0]) + " empatam na liderança, com " + top3[0][1] + " aparições cada"
+      : esc(top3[0][0]) + " lidera com " + top3[0][1] + " aparições";
+    let star = null;
+    ranked.forEach((r) => { const d = computeArtistDossier(r[0]); if (d && (!star || d.streak > star.streak)) star = d; });
+    const starTxt = star && star.streak >= 5
+      ? " <strong>Curiosidade:</strong> " + esc(star.name) + " tocou " + star.streak + " edições realizadas seguidas (" + star.streakStart + "–" + star.lastYear + ")" + (star.lastYear < FESTIVAL_DATA.meta.lastYear ? " — e ficou de fora da última da base (" + FESTIVAL_DATA.meta.lastYear + ")." : " — e segue na sequência.")
+      : "";
+    el("insight-recurrence").innerHTML = '<span class="insight-icon">🏆</span><span><strong>' + lead + ".</strong> Os três primeiros do ranking somam " + top3Sum + " aparições: " + Math.round((top3Sum / totalSlots) * 100) + "% de todas as escalações da história do festival." + starTxt + "</span>";
+
+    // Retenção ano a ano
+    const items = RET.series.map((s) => ({
+      label: String(s.from).slice(2) + "→" + String(s.to).slice(2), value: Math.round((s.ret / s.base) * 100),
+      unit: "%", note: s.ret + " de " + s.base + " artistas de " + s.from + " voltaram em " + s.to, color: "#6E9CC4"
+    }));
+    responsive(() => renderVerticalBars(el("chart-retention"), items, { yMax: 100, ySuffix: "%", ref: { value: overallRate, label: "média " + overallRate + "%" } }));
+    const groups = [
+      { l: "Já tinham tocado na edição anterior", s: "vinham de sequência", v: streakRate, b: RET.groups.streak.b, c: "#B4842E" },
+      { l: "Voltavam depois de uma pausa", s: "já tinham tocado antes, mas não na edição anterior", v: gapRate, b: RET.groups.gap.b, c: "#7C5CA8" },
+      { l: "Estreantes", s: "primeira aparição na base", v: debutRate, b: RET.groups.debut.b, c: "#3F8F5F" }
+    ];
+    el("retention-groups").innerHTML = groups.map((g) => '<div class="rg-row"><div class="rg-label">' + g.l + "<small>" + g.s + " (n = " + g.b + ')</small></div><div class="rg-track"><span class="rg-fill" style="width:' + g.v + "%;background:" + g.c + '"></span></div><div class="rg-val">' + g.v + "%</div></div>").join("");
+    el("retention-note").textContent = "Traduzindo: a cada ano, mais da metade do palco troca de gente (só " + overallRate + "% voltam). Mas a renovação não é sorteio: quem já tinha repetido tende a repetir (" + streakRate +
+      "%), e estreante volta só " + debutRate + "% das vezes. E a ideia de 'toca ano sim, ano não'? Não aparece: dos " + RET.skip.total + " artistas que pularam um ano, só " + RET.skip.back + " (" + skipRate +
+      "%) voltaram dois anos depois — a maioria não volta logo em seguida. (Cada artista é classificado só com o que se sabia até aquele ano. A transição 2019→2021 fica de fora, pois 2020 não teve festival, e o lineup de 2010 é parcial.)";
+
+    // Matriz
+    const matrix = computeRecurrenceMatrix(22, 2008);
+    responsive(() => renderMatrix(el("chart-matrix"), matrix));
+    el("legend-matrix").innerHTML = '<span><i class="lg-dot" style="background:#3B6EA5"></i>sexta</span><span><i class="lg-dot" style="background:#7C5CA8"></i>sábado</span><span><i class="lg-dot" style="background:linear-gradient(90deg,#3B6EA5 50%,#7C5CA8 50%)"></i>os dois</span><span><i class="lg-dot" style="background:#B4842E"></i>outro dia</span><span><i class="lg-dot" style="background:#8FB2CC"></i>presente, sem data</span><span><i class="lg-dot" style="background:#E3EAE8"></i>ausente</span>';
+  });
+
+  // =====================================================================
+  // Capítulo 5 — padrões
+  // =====================================================================
+  safe("patterns", () => {
+    const net = computeCoEditionNetwork(12, 2008);
+    responsive(() => renderNetwork(el("chart-network"), net));
+
+    const pairList = el("pair-list");
+    computeCoBookingPairs(8).forEach((p) => {
+      const li = document.createElement("li");
+      li.innerHTML = '<span class="pair-count">' + p.count + '×</span><span class="pair-names"><b>' + esc(p.pair[0]) + "</b> + <b>" + esc(p.pair[1]) + "</b></span>";
+      li.title = "Ver noites com " + p.pair[0] + " no explorador";
+      activatable(li, () => jumpToExplorerSearch(p.pair[0]));
+      pairList.appendChild(li);
+    });
+
+    const allPairs = computeCoBookingPairs(40), topPair = allPairs[0];
+    const odd = allPairs.find((q) => ARTIST_GENRE[q.pair[0]] && ARTIST_GENRE[q.pair[1]] && ARTIST_GENRE[q.pair[0]] !== ARTIST_GENRE[q.pair[1]]);
+    el("insight-pairs").innerHTML = '<span class="insight-icon">🤝</span><span>O par que mais dividiu a mesma noite: <strong>' + esc(topPair.pair[0]) + " + " + esc(topPair.pair[1]) + "</strong> (" + topPair.count + " vezes)." +
+      (odd ? " O mais improvável: <strong>" + esc(odd.pair[0]) + " + " + esc(odd.pair[1]) + "</strong> (" + odd.count + "×) — " + ARTIST_GENRE[odd.pair[0]].toLowerCase() + " e " + ARTIST_GENRE[odd.pair[1]].toLowerCase() + " no mesmo palco." : "") + "</span>";
+
+    const clusters = CLUSTER_LIST.filter((a) => a.appearances >= 2);
+    responsive(() => renderScatter(el("chart-clusters"), clusters));
+    const legend = {};
+    clusters.forEach((c) => { const l = (legend[c.clusterLabel] = legend[c.clusterLabel] || { idx: c.cluster, n: 0 }); l.n++; });
+    const oneOff = CLUSTER_LIST.filter((a) => a.appearances === 1).length;
+    const nP = legend["Pilares atuais"] ? legend["Pilares atuais"].n : null, nO = legend["Aparições pontuais"] ? legend["Aparições pontuais"].n : null;
+    el("insight-clusters").innerHTML = '<span class="insight-icon">🧩</span><span>' + (nP !== null ? "Só <strong>" + nP + " artistas</strong> formam o grupo dos \"Pilares atuais\": muita presença e ainda em cena. " : "") + (nO !== null ? nO + " aparecem pouco e sumiram. " : "") +
+      "Os <strong>" + oneOff + " artistas de uma única aparição</strong> ficam fora do gráfico. O algoritmo agrupa; os nomes dos grupos são leitura minha.</span>";
+    el("cluster-legend").innerHTML = Object.keys(legend).map((k) => '<span><span class="cluster-dot" style="background:' + CLUSTER_COLORS[legend[k].idx % 4] + '"></span>' + k + " (" + legend[k].n + ")</span>").join("");
+
+    const GCOL = ["#3B6EA5", "#7C5CA8", "#3F8F5F", "#C97A2E", "#B4842E"];
+    responsive(() => renderGroupedBars(el("chart-genre-era"), GENRE_BY_ERA.eras, GENRE_BY_ERA.topGenres, GENRE_BY_ERA.counts, GCOL));
+    const gl = GENRE_BY_ERA.topGenres.map((g, i) => '<span style="display:inline-flex;align-items:center;gap:.35rem;margin-right:1rem;"><span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:' + GCOL[i] + '"></span>' + g + "</span>").join("");
+    const share = (eraIdx, g) => { const c = GENRE_BY_ERA.counts[eraIdx], t = Object.keys(c).reduce((s, k) => s + c[k], 0); return t ? Math.round(((c[g] || 0) / t) * 100) : 0; };
+    const eraShares = GENRE_BY_ERA.eras.map((_, i) => share(i, "Sertanejo"));
+    const peakIdx = eraShares.indexOf(Math.max(...eraShares)), lastIdx = GENRE_BY_ERA.eras.length - 1;
+    const eEl = share(lastIdx, "Eletrônico"), ePs = share(lastIdx, "Piseiro/Forró");
+    el("insight-genre-era").innerHTML = '<span class="insight-icon">🎧</span><span>' + gl + "<br><strong>O sertanejo foi de " + eraShares[0] + "% do palco (" + GENRE_BY_ERA.eras[0] + ") a um pico de " + eraShares[peakIdx] + "% (" + GENRE_BY_ERA.eras[peakIdx] + ") e hoje está em " + eraShares[lastIdx] + "%.</strong> No espaço que abriu, o eletrônico saiu de " +
+      share(1, "Eletrônico") + "% nos anos 2000 para " + eEl + "%, e o piseiro/forró de " + share(1, "Piseiro/Forró") + "% para " + ePs + "%: juntos, " + (eEl + ePs) + "% do palco em " + GENRE_BY_ERA.eras[lastIdx] + ". (Estilo por artista é classificação minha; ver Capítulo 8.)</span>";
+
+    const deb = computeDebutantsByYear().series.filter((d) => d.year >= 2010);
+    responsive(() => renderVerticalBars(el("chart-debuts"), deb.map((d) => ({ label: d.year, value: d.count, unit: " estreante(s)", note: d.names.join(", ") || "nenhum estreante" })), { barColor: "#B4842E" }));
+    const avgDeb = deb.reduce((s, d) => s + d.count, 0) / deb.length, last = deb[deb.length - 1];
+    const maxDeb = deb.slice().sort((a, b) => b.count - a.count || b.year - a.year)[0];
+    let starDeb = null;
+    maxDeb.names.forEach((nm) => { const d = computeArtistDossier(nm); if (d && d.lastYear === FESTIVAL_DATA.meta.lastYear && d.streakStart === maxDeb.year && d.streak >= 3 && (!starDeb || d.streak > starDeb.streak)) starDeb = d; });
+    const allDeb = RET.debutEditions.withDebut === RET.debutEditions.total;
+    el("insight-debuts").innerHTML = '<span class="insight-icon">🌱</span><span><strong>Sempre entra gente nova:</strong> ' + (allDeb ? "todas as " + RET.debutEditions.total + " edições desde 2010 tiveram pelo menos um estreante" : "em " + RET.debutEditions.withDebut + " das " + RET.debutEditions.total + " edições desde 2010 houve pelo menos um estreante") + " (média de " + nf1(avgDeb) + " por edição). O recorde é de " + maxDeb.year + ": " + maxDeb.count + " nomes de uma vez" +
+      (starDeb ? " — e um deles, <strong>" + esc(starDeb.name) + "</strong>, tocou todas as edições desde então (" + starDeb.streak + " seguidas)." : ".") + (starDeb ? " Ela é a exceção: em geral, estreante" : " Em geral, estreante") + " volta em " + debutRate + "% das vezes (" + RET.groups.debut.r + " de " + RET.groups.debut.b +
+      "). Em " + last.year + " foram " + last.count + ": <strong>" + last.names.join(", ") + "</strong>. (Nomes antigos podem ser retornos, pois a base de 1989–2007 é incompleta.)</span>";
+  });
+
+  // =====================================================================
+  // Capítulo 6 — projeção explicada
+  // =====================================================================
+  const PROJECT_YEARS = [2027, 2028, 2029];
+  let activeYearIndex = 0;
+  let projections = [];
+  let slotDebut = {};
+  safe("projection", () => {
+    projections = PROJECT_YEARS.map((_, i) => buildProjection(i));
+    slotDebut = computeSlotDebutRates();
+
+    el("evidence-grid").innerHTML = [
+      { v: overallRate + "%", l: "dos artistas de uma edição estão na do ano seguinte: mais da metade do palco troca de gente", s: RET.overall.r + " de " + RET.overall.b + " · 2010–2025" },
+      { v: streakRate + "% × " + debutRate + "%", l: "voltam no ano seguinte: quem já vinha de sequência × estreantes", s: "critério só com o passado do artista" },
+      { v: RET.debutEditions.withDebut + "/" + RET.debutEditions.total, l: "edições desde 2010 tiveram estreante: sempre entra gente nova", s: "vaga aberta a nomes novos todo ano" },
+      { v: skipRate + "%", l: "voltam dois anos depois de pular um: 'ano sim, ano não' não é regra", s: RET.skip.back + " de " + RET.skip.total + " casos" }
+    ].map((e) => '<div class="evidence-card"><div class="ev-value">' + e.v + '</div><div class="ev-label">' + e.l + '</div><div class="ev-src">' + e.s + "</div></div>").join("");
+    const lastDeb = DEBUT_INFO.series[DEBUT_INFO.series.length - 1];
+    el("evidence-caption").textContent = "Por isso, quem estreou e tocou uma única vez não entra como nome projetado: os " + lastDeb.count + " estreantes de " + lastDeb.year + " (" + lastDeb.names.join(", ") + ") voltam, historicamente, em " + debutRate +
+      "% das vezes, e a hipótese mais provável para essas vagas é um nome novo. Só é projetado quem já tocou em 2+ edições. Esses números não entram na conta do score: servem pra calibrar a leitura.";
+
+    const tabs = el("year-tabs");
+    PROJECT_YEARS.forEach((y, i) => {
+      const b = document.createElement("button");
+      b.className = "year-tab" + (i === 0 ? " active" : "");
+      b.textContent = y;
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", i === 0 ? "true" : "false");
+      b.addEventListener("click", () => {
+        activeYearIndex = i;
+        [...tabs.children].forEach((c, ci) => { c.classList.toggle("active", ci === i); c.setAttribute("aria-selected", ci === i ? "true" : "false"); });
+        renderPredictions();
+      });
+      tabs.appendChild(b);
+    });
+    el("pdf-btn").addEventListener("click", () => {
+      document.title = "Jaguariúna Rodeo Festival — Projeção " + PROJECT_YEARS[activeYearIndex];
+      window.print();
+    });
+    renderPredictions();
+  });
+
+  function ctxFor(slotKey, role) {
+    const def = SLOT_DEFS.find((s) => s.key === slotKey);
+    return { year: PROJECT_YEARS[activeYearIndex], yearIndex: activeYearIndex, role, slotLabel: def.label + " · " + def.weekend + "º fim de semana", pick: projections[activeYearIndex][slotKey][role] };
+  }
+  function findCtx(name) {
+    const proj = projections[activeYearIndex];
+    for (const s of SLOT_DEFS) for (const r of ROLE_DEFS) {
+      const p = proj[s.key][r.tag];
+      if (p && p.name === name) return ctxFor(s.key, r.tag);
+    }
+    return null;
+  }
+
+  function renderPredictions() {
+    const grid = el("predict-grid");
+    grid.innerHTML = "";
+    const proj = projections[activeYearIndex];
+    SLOT_DEFS.forEach((s) => {
+      const card = document.createElement("article");
+      card.className = "night-card slot-" + s.key;
+      const head = document.createElement("div");
+      head.className = "night-card-head";
+      head.innerHTML = '<h4><span class="dot"></span>' + s.label + '</h4><span class="wknd">' + s.weekend + "º fim de semana</span>";
+      card.appendChild(head);
+      const list = document.createElement("div");
+      list.className = "role-list";
+      ROLE_DEFS.forEach((r) => {
+        const pick = proj[s.key][r.tag];
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "role-row role-btn";
+        if (!pick) {
+          btn.disabled = true;
+          btn.style.cursor = "default";
+          btn.innerHTML = '<span class="role-label">' + r.label + '</span><span class="role-artist-name" style="color:var(--muted);font-weight:500">' +
+            (r.tag === "emerging" ? "vaga aberta a estreante — o nome ainda não existe na base" : "sem candidato com 2+ edições nesta noite") + "</span>";
+        } else {
+          btn.innerHTML = '<span class="role-label">' + r.label + '</span><div class="role-artist"><span class="role-artist-name">' + esc(pick.name) + '<span class="genre-chip">' + esc(pick.genre) +
+            '</span></span><span class="role-score" title="Escala relativa: o 1º colocado do papel nesta noite = 100. Não é probabilidade de contratação.">score rel. ' + pick.pct + '</span></div><div class="role-bar-wrap"><div class="role-bar" style="width:' + pick.pct + '%"></div></div>' +
+            '<span class="role-hint">' + (r.tag === "emerging" ? "já voltou ao menos uma vez (2+ edições) · " : "") + "clique pra ver por que ele está aí</span>";
+          btn.addEventListener("click", () => openDossier(pick.name, ctxFor(s.key, r.tag)));
+        }
+        list.appendChild(btn);
+      });
+      const d = slotDebut[s.key];
+      if (d && d.editions) {
+        const row = document.createElement("div");
+        row.className = "role-row debut-slot";
+        row.innerHTML = '<span class="role-label">Vaga de estreante inédito</span><div class="role-bar-wrap"><div class="role-bar" style="width:' + pct(d.withDebut, d.editions) + '%"></div></div><span class="role-hint">Em ' + d.withDebut + " das " + d.editions +
+          " edições de 4 noites (2015–2026) esta noite teve ao menos um estreante. Nome desconhecido: não é projetado.</span>";
+        list.appendChild(row);
+      }
+      card.appendChild(list);
+      grid.appendChild(card);
+    });
+    renderScoreTable();
+  }
+
+  function renderScoreTable() {
+    const proj = projections[activeYearIndex], tb = el("score-body");
+    const rows = [];
+    SLOT_DEFS.forEach((s) => ROLE_DEFS.forEach((r) => {
+      const p = proj[s.key][r.tag];
+      if (!p) return;
+      rows.push("<tr><td>" + s.label + " · " + s.weekend + 'º f.d.s.</td><td>' + r.label + '</td><td><button class="artist-link" type="button" data-artist="' + esc(p.name) + '">' + esc(p.name) + '</button></td><td class="num">' + nf1(3 * p.slotAppearances) +
+        '</td><td class="num">' + nf1(p.overall) + '</td><td class="num">' + nf1(p.recency) + '</td><td class="num"><b>' + nf1(p.score) + '</b></td><td class="num">' + p.pct + '</td><td class="num">' + p.rank + "/" + p.poolSize + "</td></tr>");
+    }));
+    tb.innerHTML = rows.join("");
+  }
+  safe("score-links", () => bindArtistLinks(el("score-body"), findCtx));
+
+  // =====================================================================
+  // Capítulo 7 — explorador
+  // =====================================================================
+  const tbody = el("lineup-body"), yearFilter = el("year-filter"), searchInput = el("search-input");
+  const debutYear = DEBUT_INFO.debutYear;
+  const dateFmt = (n) => (n.date ? n.date.split("-").reverse().join("/") : "não confirmada");
+  function sortedNights() {
+    return nights.slice().sort((a, b) => (a.date || a.year + "-00-00").localeCompare(b.date || b.year + "-00-00"));
+  }
+  function artistCell(n) {
+    return n.artists.map((a) => '<button class="artist-link" type="button" data-artist="' + esc(a) + '">' + esc(a) + "</button>" + (debutYear[a] === n.year ? '<span class="debut-badge">NOVO</span>' : "")).join(", ");
+  }
+  function renderTable() {
+    const q = (searchInput.value || "").trim().toLowerCase(), yr = yearFilter.value;
+    const rows = sortedNights().filter((n) => {
+      if (yr && String(n.year) !== yr) return false;
+      return !q || (n.artists.join(" ") + " " + n.year).toLowerCase().indexOf(q) >= 0;
+    });
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">Nada encontrado.</td></tr>'; return; }
+    tbody.innerHTML = rows.map((n) => {
+      const gap = n.artists.length === 0;
+      return "<tr" + (gap ? ' class="gap-row"' : "") + "><td>" + n.year + "</td><td>" + n.edition + "ª</td><td>" + dateFmt(n) + "</td><td>" + (n.weekday || "—") + "</td><td>" + (n.weekend ? n.weekend + "º" : "—") + "</td><td>" +
+        (gap ? "dado não encontrado" + (n.note ? " — " + esc(n.note) : "") : artistCell(n)) + "</td><td>" + n.venue + "</td></tr>";
+    }).join("");
+  }
+  safe("explorer", () => {
+    [...new Set(nights.map((n) => n.year))].sort((a, b) => b - a).forEach((y) => {
+      const o = document.createElement("option");
+      o.value = y; o.textContent = y;
+      yearFilter.appendChild(o);
+    });
+    searchInput.addEventListener("input", renderTable);
+    yearFilter.addEventListener("change", renderTable);
+    bindArtistLinks(tbody, null);
+    renderTable();
+    el("csv-btn").addEventListener("click", () => {
+      const headers = ["Ano", "Edição", "Data", "Dia da Semana", "Fim de Semana", "Artistas", "Sede"];
+      const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+      const rows = sortedNights().map((n) => [n.year, n.edition + "ª", dateFmt(n), n.weekday || "—", n.weekend ? n.weekend + "º" : "—", n.artists.join("; ") || "dado não encontrado", n.venue]);
+      const csv = "\uFEFF" + [headers].concat(rows).map((r) => r.map(q).join(",")).join("\r\n");
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = "jaguariuna-rodeo-festival-1989-2026.csv";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  });
+  function jumpToExplorerSearch(name) {
+    searchInput.value = name;
+    yearFilter.value = "";
+    renderTable();
+    el("explorer").scrollIntoView({ behavior: "smooth", block: "start" });
+    searchInput.focus();
+  }
+
+  // =====================================================================
+  // Capítulo 8 — metodologia
+  // =====================================================================
+  safe("method", () => {
+    const dq = computeDataQuality(), LV = { full: "line-up por data", partial: "datas parciais", lineup: "só lista de artistas", cancelled: "edição cancelada" };
+    el("dq-strip").innerHTML = dq.map((d) => '<div class="dq-cell ' + d.level + '" title="' + d.year + ": " + LV[d.level] + '">' + "’" + String(d.year).slice(2) + "</div>").join("");
+    el("dq-legend").innerHTML = '<span><i class="lg-dot" style="background:#3F8F5F"></i>line-up por data</span><span><i class="lg-dot" style="background:#D9B45A"></i>datas parciais</span><span><i class="lg-dot" style="background:#9BC0DC"></i>só lista de artistas do ano</span><span><i class="lg-dot" style="background:#C9CDD8"></i>cancelada</span>';
+
+    const N = nights.length, M = allArtists.size;
+    const items = [
+      { h: "Período analisado e cobertura", plain: "De 1989 a 2026: 37 edições (2020 não teve festival e fica fora da numeração).",
+        b: "<p>A base tem <b>" + N + " registros</b> (noites ou blocos de uma edição) e <b>" + M + " artistas</b>. O nível de detalhe varia por período (mapa acima): a partir de 2008 quase toda edição tem line-up por data; antes disso, muitas só têm a lista de artistas do ano.</p>" },
+      { h: "Fontes dos dados", plain: "De onde vieram os dados: imprensa, portais regionais, cartazes e retrospectivas.",
+        b: "<p>Estrela da Mogiana, G1, Folha de S.Paulo, Correio Popular, CNN Brasil, Campinas.com.br, ACidade ON, setlist.fm, ConJur/SEDEP/Terra (edição de 2009), cartazes de divulgação e uma retrospectiva histórica do festival que eu já tinha. <b>Atenção:</b> parte das datas por artista de 1999 a 2014 veio de resumos automáticos de busca (com citação de fontes) que eu já tinha; conferi com o calendário (dia da semana × data) e cruzei com outras fontes quando possível, mas não verifiquei na página original.</p>" },
+      { h: "Variáveis: o que é dado e o que é interpretação minha", plain: "O que é fato registrado e o que é classificação minha.",
+        b: "<ul><li><b>Dados:</b> ano, edição, data, dia da semana (recalculado a partir da data), 1º/2º fim de semana, artistas, sede, público divulgado.</li><li><b>Interpretação minha:</b> estilo musical de cada artista (11 estilos), papel na noite (headliner, segundo nome, crossover, emergente) — classificação manual de cerca de 55 artistas; quem não foi classificado entra como 'segundo nome' por padrão — e os rótulos dos arquétipos do clustering.</li></ul>" },
+      { h: "Tratamento dos dados", plain: "A faxina: grafias unificadas, datas só quando existem, exclusões explicadas.",
+        b: "<ul><li>Unifiquei grafias diferentes do mesmo nome (por exemplo, 'Bruno & Marrone' e 'Bruno e Marrone').</li><li>Quando a data de um show específico não é conhecida, ele fica num registro à parte ('demais atrações do período'), sem data inventada.</li><li>Marília Mendonça segue no histórico, mas eu a excluí das projeções (faleceu em 2021). Um cartaz de 2021 a listava no dia 03/12, após o falecimento; a programação real registrada é outra.</li><li>Descartei uma lista de atrações de 2005 vinda de fonte automática, por contradizer duas fontes concordantes.</li><li>2009 é tratada como edição interrompida.</li></ul>" },
+      { h: "Critério de recorrência", plain: "Como eu conto quem \'voltou\'.",
+        b: "<p>'Aparições' são registros de noite catalogados; 'edições' são anos distintos. Um artista que toca em duas noites da mesma edição conta duas vezes nas aparições e uma vez nas edições.</p>" },
+      { h: "Como a projeção é calculada", plain: "Quem mais tocou naquela mesma noite, mais vezes no festival e mais recentemente, pontua mais.",
+        b: "<p><b>Score</b> = 3 × aparições no slot + 1 × aparições totais + bônus de recência (2,5 se a última aparição é de 2023 em diante; 1,2 entre 2019 e 2022; 0,3 antes). Para cada noite e papel, o candidato mais bem colocado é a hipótese. Nenhum artista aparece duas vezes no mesmo ano projetado.</p><p><b>Elegibilidade:</b> só é projetado quem já tocou em 2 ou mais edições distintas. Estreantes de uma única aparição não entram como nome (voltam em " + debutRate + "% dos casos); quando não sobra candidato elegível numa noite, ela fica com a <b>vaga aberta</b>, em vez de repetir alguém. Isso vale para todos os papéis.</p><p><b>O score relativo</b> mostrado nas barras coloca o 1º colocado do papel naquela noite em 100. Ele <b>não é uma probabilidade</b>.</p><p><b>Rodízio (limitação importante):</b> para 2028 e 2029 o modelo usa o candidato seguinte do ranking. Essa regra foi desenhada para diversificar a projeção; <b>ela não vem de evidência estatística</b> e contraria o dado de que quem já vinha de sequência volta em " + streakRate + "% dos casos. Trate 2028 e 2029 como cenários mais frágeis que 2027.</p>" },
+      { h: "Evidências de retorno (calibragem)", plain: "Quanto o palco se renova de um ano pro outro — sem mexer no score.",
+        b: "<ul><li>Cerca de " + overallRate + "% dos artistas de uma edição voltam na do ano seguinte (" + RET.overall.r + " de " + RET.overall.b + ").</li><li>Já vinham de sequência: " + streakRate + "% voltam · voltavam após pausa: " + gapRate + "% · estreantes: " + debutRate + "%.</li><li>Após pular um ano, " + skipRate + "% voltam dois anos depois (" + RET.skip.back + " de " + RET.skip.total + ").</li><li>" + RET.debutEditions.withDebut + " das " + RET.debutEditions.total + " edições desde 2010 tiveram ao menos um estreante.</li></ul><p>Cada artista é classificado apenas com o que se sabia até o ano observado, para evitar o viés de 'olhar o futuro'. Estas taxas são de grupo, não probabilidades individuais.</p>" },
+      { h: "Análises exploratórias", plain: "Quatro leituras extras, todas calculadas aqui mesmo, no navegador.",
+        b: "<ul><li><b>Quem toca com quem:</b> contagem de co-ocorrência na mesma noite (2+ ocorrências) e, na rede, número de edições em comum desde 2008.</li><li><b>Arquétipos:</b> k-means (k = 4) sobre aparições × ano da última participação, com inicialização fixa (sem aleatoriedade); os rótulos são interpretação minha.</li><li><b>Estilos por era:</b> contagem de atrações por estilo em quatro eras.</li><li><b>Estreantes:</b> primeira aparição na base. Como 1989–2007 é incompleto, uma 'estreia' antiga pode ser, na verdade, um retorno; a partir de 2010 a leitura é mais segura.</li></ul>" },
+      { h: "Limitações e lacunas", plain: "O que a base ainda não sabe.",
+        b: "<ul><li>Clima (temperatura e chuva por noite) não foi coletado: exige acesso a bases como INMET ou NOAA.</li><li>Datas por artista de 1989–1999 e da maior parte de 2001–2007 não foram encontradas em nenhuma fonte.</li><li>A amostra é pequena (" + N + " registros, " + M + " artistas): as taxas têm margem de erro grande e um único ano muda muito o resultado.</li><li>Papéis e estilos dependem de classificação manual.</li><li>Números de público são, em sua maioria, estimativas ou projeções pré-evento.</li><li>A projeção não considera agenda, cachê, exclusividade ou estratégia comercial, que são o que de fato decide um lineup.</li></ul>" },
+      { h: "Inconsistências sinalizadas (não corrigidas em silêncio)", plain: "Onde as fontes (ou versões antigas deste painel) discordam.",
+        b: "<ul><li><b>Período de 2001 e 2002:</b> o setlist.fm indica 2001 = 3 a 13/05 e 2002 = 30/04 a 12/05; um resumo com citação da Folha inverte (2001 = 30/04 a 13/05; 2002 = 3 a 13/05). Datas de shows individuais foram mantidas; o período total fica em aberto.</li><li><b>Recorde de público:</b> mais de 80 mil no show do Creedence (2001) × recorde de 57,2 mil em um único dia (2007). Podem medir coisas diferentes.</li><li><b>Duração das edições:</b> valores de 1989, 1998 e 2009 que constavam em versões anteriores do gráfico foram removidos por falta de fonte.</li><li><b>Sexta × sábado:</b> uma versão anterior afirmava que a sexta tinha 8% mais atrações; a comparação era enganosa (contava artistas, não noites; há 42 sextas contra 41 sábados) e foi substituída pela composição por noite.</li><li><b>Jorge &amp; Mateus:</b> a sequência calculada (17 edições realizadas seguidas, 2008–2025) coincide com a '17ª vez consecutiva' divulgada em 2025; o nome não está no lineup de 2026.</li></ul>" }
+    ];
+    const list = el("method-list");
+    items.forEach((it, i) => {
+      const d = document.createElement("details");
+      d.className = "method-detail";
+      if (i === 5) d.setAttribute("open", "");
+      d.innerHTML = "<summary>" + it.h + '</summary><div class="md-body"><div class="md-plain">' + it.plain + "</div>" + it.b + "</div>";
+      list.appendChild(d);
+    });
+  });
+
+  // =====================================================================
+  // Interatividade de página
+  // =====================================================================
+  safe("resize", () => {
+    let t = null;
+    window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => redraws.forEach((f) => safe("redraw", f)), 160); });
+  });
+
+  safe("page-interactivity", () => {
+    const navLinks = [...document.querySelectorAll(".chapter-nav a")];
+    const sections = navLinks.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+    const reveals = [...document.querySelectorAll(".reveal")];
+    if (typeof IntersectionObserver === "undefined") {
+      reveals.forEach((r) => r.classList.add("revealed"));
+    } else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("revealed"); io.unobserve(e.target); } });
+      }, { threshold: 0.01, rootMargin: "0px 0px -6% 0px" });
+      reveals.forEach((r) => io.observe(r));
+      const spy = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          const idx = sections.indexOf(e.target);
+          if (idx === -1 || !e.isIntersecting) return;
+          navLinks.forEach((a, i) => { a.classList.toggle("active", i === idx); a.classList.toggle("seen", i < idx); });
+          const a = navLinks[idx];
+          if (a && a.scrollIntoView && window.innerWidth < 900) a.scrollIntoView({ inline: "center", block: "nearest" });
+        });
+      }, { rootMargin: "-45% 0px -50% 0px" });
+      sections.forEach((s) => spy.observe(s));
+      // segurança: nada fica invisível se o observador não disparar
+      setTimeout(() => reveals.forEach((r) => r.classList.add("revealed")), 4000);
+    }
+    const bar = el("nav-progress"), top = el("back-to-top");
+    window.addEventListener("scroll", () => {
+      const doc = document.documentElement;
+      const h = (doc.scrollHeight || 1) - (window.innerHeight || 0);
+      if (bar && h > 0) bar.style.width = Math.min(100, (window.scrollY / h) * 100) + "%";
+      if (top) top.classList.toggle("visible", window.scrollY > 700);
+    }, { passive: true });
+    if (top) top.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  });
+})();
+
+</script>
+</body>
+</html>
